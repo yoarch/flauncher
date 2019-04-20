@@ -1,0 +1,14 @@
+{
+  "audio": "mpv",
+  "image": "feh",
+  "pdf": "evince -f",
+  "rar": "unrar e -r -o- /home/username/source/directory/*.rar /home/username/copy/extracted/to",
+  "tar": "tar --directory regal.test -xf regal.tar",
+  "tar.gz": "tar --directory regal.test -zxf regal.tar.gz",
+  "tar.xz": "tar --directory regal.test -xJf regal.tar.xz",
+  "tar.bz2": "tar --directory regal.test -xvjf regal.tar.bz2",
+  "text": "gedit",
+  "tgz": "tar --directory regal.test -xvzf regal.tgz",
+  "zip": "unzip -d $global_output_folder_path -f test.zip",
+  "video": "mpv"
+}
