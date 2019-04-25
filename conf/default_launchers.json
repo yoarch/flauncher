@@ -1,14 +1,72 @@
 {
-  "audio": "mpv",
-  "image": "feh",
-  "pdf": "evince -f",
-  "rar": "unrar e -r -o- /home/username/source/directory/*.rar /home/username/copy/extracted/to",
-  "tar": "tar --directory regal.test -xf regal.tar",
-  "tar.gz": "tar --directory regal.test -zxf regal.tar.gz",
-  "tar.xz": "tar --directory regal.test -xJf regal.tar.xz",
-  "tar.bz2": "tar --directory regal.test -xvjf regal.tar.bz2",
-  "text": "gedit",
-  "tgz": "tar --directory regal.test -xvzf regal.tgz",
-  "zip": "unzip -d $global_output_folder_path -f test.zip",
-  "video": "mpv"
+  "audio": {
+    "type": "playlist",
+    "exts": ["mp3", "wav", "m4a", "aac", "mp1", "mp2", "flac", "aa", "aax", "act", "aiff", "amr", "ape", "au", "awb", "dct", "dss", "dvf", "gsm", "iklax", "ivs", "m4b", "m4p", "mmf", "mpc", "msv", "nmf", "nsf", "oga", "mogg", "opus", "ra", "raw", "sin", "tta", "vox", "wma", "wv", "8svx"],
+    "cmd": "mpv -fs --loop-playlist -script-opts=osc-hidetimeout=6000 --player-operation-mode=pseudo-gui"
+  },
+  "image": {
+    "type": "playlist",
+    "exts": ["jpg", "jpeg", "png", "tif", "gif", "bmp", "pjpeg", "jfif", "exif", "tiff", "png", "ppm", "pgm", "pbm", "pnm", "webp", "hdr", "heif", "bat", "bpg"],
+    "cmd": "feh -d -Y -F"
+  },
+  "libreoffice_writer": {
+    "type": "lonely",
+    "exts": ["odt"],
+    "cmd": "libreoffice --writer"
+  },
+  "libreoffice_calc": {
+    "type": "lonely",
+    "exts": ["ods"],
+    "cmd": "libreoffice --calc"
+  },
+  "pdf": {
+    "type": "lonely",
+    "exts": ["pdf"],
+    "cmd": "evince -f"
+  },
+  "rar": {
+    "type": "archive_a",
+    "exts": ["rar"],
+    "cmd": "unrar x"
+  },
+  "tar": {
+    "type": "archive_a",
+    "exts": ["tar"],
+    "cmd": "tar -xvf"
+  },
+  "tar_gz": {
+    "type": "archive_a",
+    "exts": ["tar.gz"],
+    "cmd": "tar -zxvf"
+  },
+  "tar_xz": {
+    "type": "archive_b",
+    "exts": ["tar.xz"],
+    "cmd": "tar --directory FOLDER_PATH -xJf ARCHIVE_PATH"
+  },
+  "tar_bz2": {
+    "type": "archive_a",
+    "exts": ["tar.bz2"],
+    "cmd": "tar jxvf"
+  },
+  "text": {
+    "type": "lonely",
+    "exts": ["text", "txt", "conf", "sh", "py", "note", "log", "c", "h", "js", "tmp", "json", "csv", "java", "xml", "tex", "js"],
+    "cmd": "atom"
+  },
+  "tgz": {
+    "type": "archive_a",
+    "exts": ["tgz"],
+    "cmd": "tar -xvzf"
+  },
+  "video": {
+    "type": "playlist",
+    "exts": ["avi", "mpeg", "mp4", "ogg", "quicktime", "webm", "mp2t", "flv", "mov", "webm", "mkv", "mts", "vob", "ogv", "drc", "gif", "gifv", "mng", "mts", "m2ts", "mwv", "yuv", "rm", "rmvb", "asf", "amv", "m4v", "mpg", "mpe", "mpv", "m2v", "svi", "3gp", "3g2", "mxf", "roq", "nsv", "f4v", "f4p", "f4a", "f4b"],
+    "cmd": "mpv -fs --loop-playlist -script-opts=osc-hidetimeout=2000"
+  },
+  "zip": {
+    "type": "archive_b",
+    "exts": ["zip"],
+    "cmd": "unzip -d FOLDER_PATH ARCHIVE_PATH"
+  }
 }

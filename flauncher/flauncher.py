@@ -3,10 +3,11 @@ import json
 import os
 import subprocess
 from shutil import copyfile
+from os import listdir
 
 import logging
-# from .logger import build_logger
-from logger import build_logger
+from .logger import build_logger
+# from logger import build_logger
 logger = build_logger("flauncher", level=logging.INFO)
 
 
@@ -17,32 +18,21 @@ CBPURPLE = '\033[1;35m'
 CBBLUE = '\033[1;34m'
 CNORMAL_WHITE = '\033[0m'
 
-COCCURRENCES = CBPURPLE
-CFILE_PATHS = CBBLUE
-CTEXT_FILES = CBWHITE
-
 
 def check_help_request(arguments):
     if len(arguments) == 1 and (arguments[0] == "-h" or arguments[0] == "--help"):
-        README_path = "/usr/lib/modfname/README.md"
+        README_path = "/usr/lib/flauncher/README.md"
 
         f = open(README_path, 'r')
-        print(CFILE_PATHS + "\n\t#######      modfname documentation      #######\n" + CBWHITE)
+        print(CBBLUE + "\n\t#######      flauncher documentation      #######\n" + CBWHITE)
 
         for line in f:
             if line == "```sh\n" or line == "```\n" or line == "<pre>\n" or line == "</pre>\n":
                 continue
-            line = line.replace('```sh', '')
-            line = line.replace('```', '')
-            line = line.replace('<pre>', '')
-            line = line.replace('</b>', '')
-            line = line.replace('<b>', '')
-            line = line.replace('<!-- -->', '')
-            line = line.replace('<br/>', '')
-            line = line.replace('```sh', '')
-            line = line.replace('***', '')
-            line = line.replace('**', '')
-            line = line.replace('*', '')
+            line = line.replace('```sh', '').replace('```', '').replace('<pre>', '').replace('</b>', '').\
+                replace('<b>', '').replace('<!-- -->', '').replace('<br/>', '').replace('```sh', '').\
+                replace('***', '').replace('***', '').replace('**', '').replace('*', '')
+
             print(" " + line, end='')
         print(CNORMAL_WHITE)
         exit()
@@ -52,49 +42,52 @@ def run(command):
     return subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout.readlines()
 
 
-def init_fdata():
-
-    file_data = {
-        "audio": {"nb": 0, "file_paths": list()},
-        "image": {"nb": 0, "file_paths": list()},
-        "pdf": {"nb": 0, "file_paths": list()},
-        "rar": {"nb": 0, "file_paths": list()},
-        "tar": {"nb": 0, "file_paths": list()},
-        "tar_gz": {"nb": 0, "file_paths": list()},
-        "tar_xz": {"nb": 0, "file_paths": list()},
-        "tar_bz2": {"nb": 0, "file_paths": list()},
-        "text": {"nb": 0, "file_paths": list()},
-        "tgz": {"nb": 0, "file_paths": list()},
-        "zip": {"nb": 0, "file_paths": list()},
-        "video": {"nb": 0, "file_paths": list()}
-    }
-    return file_data
+def init_fpaths_sorted_by_ftype(ftypes):
+    fpaths_sorted_by_ftype = dict()
+    for ftype in ftypes:
+        fpaths_sorted_by_ftype[ftype] = list()
+    return fpaths_sorted_by_ftype
 
 
 def get_launchers():
 
-    default_launchersconf_name = "default_launchers.json"
-    perso_launchersconf_name = "launchers.json"
+    def_launchers_fname = "default_launchers.json"
+    perso_launchers_fname = "launchers.json"
     HOME_PATH = os.environ['HOME']
-    perso_launchersconf_path = HOME_PATH + "/.config/flauncher/" + perso_launchersconf_name
+    perso_flauncher_folder_path = HOME_PATH + "/.config/flauncher/"
+    perso_flauncher_file_path = perso_flauncher_folder_path + perso_launchers_fname
 
-    if not os.path.exists(perso_launchersconf_path):
-        default_launchersconf_path = "/usr/lib/flauncher/" + default_launchersconf_name
-        logger.info("the personal launchers conf path %s doesn't exist\n\tcopying the default launchers conf from %s "
-                    "to %s\n\t\tdon't forget to customize the launchers by editing "
-                    "this file" % (perso_launchersconf_path, default_launchersconf_path, perso_launchersconf_path))
-        copyfile(default_launchersconf_path, perso_launchersconf_path)
+    create_perso_flauncher_folder(perso_flauncher_folder_path)
+    create_perso_flauncher_file(perso_flauncher_file_path, def_launchers_fname)
 
-    with open(perso_launchersconf_path) as f:
-        return json.load(f)
+    with open(perso_flauncher_file_path) as launchers_f:
+        return json.load(launchers_f), perso_flauncher_file_path
+
+
+def create_perso_flauncher_folder(perso_flauncher_folder_path):
+    if not os.path.exists(perso_flauncher_folder_path):
+        try:
+            os.mkdir(perso_flauncher_folder_path)
+        except OSError:
+            logger.error("creation of the directory %s failed" % perso_flauncher_folder_path)
+
+
+def create_perso_flauncher_file(perso_flauncher_file_path, def_launchers_fname):
+    if not os.path.exists(perso_flauncher_file_path):
+        default_launchersconf_path = "/usr/lib/flauncher/" + def_launchers_fname
+
+        logger.info("the personal launchers conf path %s doesn't exist\n\n\tcopying the default launchers conf from %s "
+                    "to %s\n\n\t\tdon't forget to customize the launchers by editing "
+                    "this file" % (perso_flauncher_file_path, default_launchersconf_path, perso_flauncher_file_path))
+
+        copyfile(default_launchersconf_path, perso_flauncher_file_path)
 
 
 def get_abs_path(files):
-    abs_file_paths = list()
+    abs_fpaths = list()
     for file in files:
-        # abs_file_paths.append(os.path.abspath(file))
-        abs_file_paths.append(os.path.normpath((os.path.join(os.getcwd(), os.path.expanduser(file)))))
-    return abs_file_paths
+        abs_fpaths.append(os.path.normpath((os.path.join(os.getcwd(), os.path.expanduser(file)))))
+    return abs_fpaths
 
 
 def check_path_issues(file_path):
@@ -120,119 +113,171 @@ def check_binary(file_path):
     return is_binary
 
 
-def get_media_exts():
-    audio_exts = json.load(open("/usr/lib/flauncher/audio_exts.json"))
-    image_exts = json.load(open("/usr/lib/flauncher/image_exts.json"))
-    video_exts = json.load(open("/usr/lib/flauncher/video_exts.json"))
-    return audio_exts, image_exts, video_exts
+def generate_folder_from_archive(archive_path, archive_ext, ftype):
+
+    base_path = os.path.dirname(archive_path)
+    fname = os.path.basename(archive_path)
+
+    folder_name = fname[:-(len(archive_ext)+1)]
+
+    folder_path = base_path + "/" + folder_name
+
+    if os.path.exists(folder_path):
+        folder_path = find_folder_path_not_existing(base_path, folder_name, ftype)
+
+    try:
+        os.mkdir(folder_path)
+    except OSError:
+        logger.error("creation of the directory %s failed" % folder_path)
+        folder_path = None
+
+    return folder_path
 
 
-def file_router_one_ext(f, filepath, ext, audio_exts, image_exts, video_exts):
-
-    for audio_ext in audio_exts:
-        if ext == audio_ext:
-            f["audio"]["nb"] += 1
-            f["audio"]["file_paths"].append(filepath)
-            return
-
-    for image_ext in image_exts:
-        if ext == image_ext:
-            f["image"]["nb"] += 1
-            f["image"]["file_paths"].append(filepath)
-            return
-
-    for video_ext in video_exts:
-        if ext == video_ext:
-            f["video"]["nb"] += 1
-            f["video"]["file_paths"].append(filepath)
-            return
-
-    if ext == "pdf":
-        f["pdf"]["nb"] += 1
-        f["pdf"]["file_paths"].append(filepath)
-
-    elif ext == "rar":
-        f["rar"]["nb"] += 1
-        f["rar"]["file_paths"].append(filepath)
-
-    elif ext == "tar":
-        f["tar"]["nb"] += 1
-        f["tar"]["file_paths"].append(filepath)
-
-    elif ext == "tgz":
-        f["tgz"]["nb"] += 1
-        f["tgz"]["file_paths"].append(filepath)
-
-    elif ext == "zip":
-        f["zip"]["nb"] += 1
-        f["zip"]["file_paths"].append(filepath)
-
-    else:
-        if not check_binary(filepath):
-            f["text"]["nb"] += 1
-            f["text"]["file_paths"].append(filepath)
+def check_nb_files(input_files):
+    if len(input_files) == 0:
+        raise ValueError("need at least one file to launch ...")
 
 
-def file_router_two_exts(f, filepath, ext):
+def print_cmd(cmd):
+    print(CBWHITE + "\n\n\t%s\n" % cmd + CNORMAL_WHITE, end='')
 
-    found = True
-    if ext == "tar.gz":
-        f["tar_gz"]["nb"] += 1
-        f["tar_gz"]["file_paths"].append(filepath)
 
-    elif ext == "tar.xz":
-        f["tar_xz"]["nb"] += 1
-        f["tar_xz"]["file_paths"].append(filepath)
+def find_folder_path_not_existing(base_path, folder_name, ftype):
+    folder_archive_path = base_path + "/" + folder_name + "_" + ftype
+    ref_folder_archive_path = folder_archive_path
+    if os.path.exists(folder_archive_path):
+        folder_archive_path = ref_folder_archive_path + "_archive"
+        if os.path.exists(folder_archive_path):
+            for i in range(20):
+                folder_archive_path = ref_folder_archive_path + "_" + str(i+1)
+                if not os.path.exists(folder_archive_path):
+                    break
+    return folder_archive_path
 
-    elif ext == "tar.bz2":
-        f["tar_bz2"]["nb"] += 1
-        f["tar_bz2"]["file_paths"].append(filepath)
-    else:
-        found = False
-    return found
+
+def launch_cmds(fpaths_sorted_by_ftype, ftype, launchers, launchersconf_path):
+    if launchers[ftype]["type"] == "playlist":
+        run_playlist_f(launchers, ftype, fpaths_sorted_by_ftype)
+
+    if launchers[ftype]["type"] == "lonely":
+        run_lonely_f(launchers, ftype, fpaths_sorted_by_ftype)
+
+    if launchers[ftype]["type"] == "archive_a":
+        run_archive_a_f(launchers, ftype, fpaths_sorted_by_ftype)
+
+    if launchers[ftype]["type"] == "archive_b":
+        run_archive_b_f(launchers, ftype, fpaths_sorted_by_ftype, launchersconf_path)
+
+
+def run_playlist_f(launchers, ftype, fpaths_sorted_by_ftype):
+    app_cmd = launchers[ftype]["cmd"]
+
+    fpaths = fpaths_sorted_by_ftype[ftype]
+    if len(fpaths) == 1:
+        fpaths = get_playlist_fpaths_same_ftype(fpaths[0], launchers, ftype)
+
+    cmd = app_cmd + " \"" + '\" \"'.join(fpaths) + "\""
+    print_cmd(cmd)
+    run(cmd)
+
+
+def get_playlist_fpaths_same_ftype(lonely_fpath, launchers, ftype):
+
+    fnames_same_ftype = list()
+    folder_path_lonely_f = os.path.dirname(lonely_fpath)
+    lonely_fname = os.path.basename(lonely_fpath)
+
+    for fname in listdir(folder_path_lonely_f):
+        for ext in launchers[ftype]["exts"]:
+            if fname.endswith(ext) and os.path.isfile(folder_path_lonely_f + "/" + fname):
+                fnames_same_ftype.append(fname)
+                break
+
+    fnames_same_ftype.sort()
+    pos_targeted_f = fnames_same_ftype.index(lonely_fname)
+    fnames_same_ftype_sorted = fnames_same_ftype[pos_targeted_f:] + fnames_same_ftype[:pos_targeted_f]
+    playlist_fpaths = [folder_path_lonely_f + "/" + fname_same_ftype for fname_same_ftype in fnames_same_ftype_sorted]
+    return playlist_fpaths
+
+
+def run_lonely_f(launchers, ftype, fpaths_sorted_by_ftype):
+    app_cmd = launchers[ftype]["cmd"]
+
+    fpaths = fpaths_sorted_by_ftype[ftype]
+
+    cmd = app_cmd + " \"" + '\" \"'.join(fpaths) + "\""
+    print_cmd(cmd)
+    run(cmd)
+
+
+def run_archive_a_f(launchers, ftype, fpaths_sorted_by_ftype):
+    for archive_path in fpaths_sorted_by_ftype[ftype]:
+        cmd = launchers[ftype]["cmd"] + " \"" + archive_path + "\""
+        print_cmd(cmd)
+        run(cmd)
+
+
+def run_archive_b_f(launchers, ftype, fpaths_sorted_by_ftype, launchersconf_path):
+
+    if len(launchers[ftype]["exts"]) != 1:
+        logger.error("an archive type can only have one extension, got %s extensions\n"
+                     "please review your launcher conf file located in %s" % (
+                     launchers[ftype]["exts"], launchersconf_path))
+        return
+
+    for archive_path in fpaths_sorted_by_ftype[ftype]:
+        folder_path = generate_folder_from_archive(archive_path, launchers[ftype]["exts"][0], ftype)
+        if not folder_path:
+            logger.warning("skipping the %s archive" % archive_path)
+            continue
+
+        cmd_pattern = launchers[ftype]
+        cmd = cmd_pattern.replace("FOLDER_PATH", folder_path)
+        cmd = cmd.replace("ARCHIVE_PATH", archive_path)
+        print_cmd(cmd)
+        run(cmd)
+
+
+def get_ftypes(launchers):
+    ftypes = list()
+    for ftype in launchers:
+        ftypes.append(ftype)
+    return ftypes
+
+
+def route_fpaths_by_ext(fpath, fpaths_sorted_by_ftype, launchers):
+    for ftype_key, ftype_value in launchers.items():
+        for ext in ftype_value["exts"]:
+            if fpath.lower().endswith("." + ext.lower()):
+                fpaths_sorted_by_ftype[ftype_key].append(fpath)
+                return
+
+    if not check_binary(fpath):
+        fpaths_sorted_by_ftype["text"].append(fpath)
 
 
 def main():
 
     input_parms = sys.argv[1:]
-
     check_help_request(input_parms)
+    check_nb_files(input_parms)
+    fpaths = get_abs_path(input_parms)
 
-    launchers = get_launchers()
+    launchers, launchersconf_path = get_launchers()
+    ftypes = get_ftypes(launchers)
+    fpaths_sorted_by_ftype = init_fpaths_sorted_by_ftype(ftypes)
 
-    filepaths = get_abs_path(input_parms)
-    file_types = ["audio", "image", "pdf", "rar", "tar", "tar_gz", "tar_xz", "tar_bz2", "text", "tgz", "zip", "video"]
+    for fpath in fpaths:
 
-    if len(filepaths) == 0:
-        raise ValueError("need at least one file to open ...")
-
-    audio_exts, image_exts, video_exts = get_media_exts()
-
-    f = init_fdata()
-
-    for filepath in filepaths:
-
-        if check_path_issues(filepath):
+        if check_path_issues(fpath):
             continue
 
-        fname = os.path.basename(filepath)
-        nb_dot = fname.count('.')
-        if nb_dot == 0:
-            if not check_binary(filepath):
-                f["text"]["nb"] += 1
-                f["text"]["file_paths"].append(filepath)
-        elif nb_dot == 1:
-            ext = fname.split('.')[-1]
-            file_router_one_ext(f, filepath, ext.lower(), audio_exts, image_exts, video_exts)
-        else:
-            ext = fname.split('.')[-2] + '.' + fname.split('.')[-1]
-            found = file_router_two_exts(f, filepath, ext.lower())
-            if not found:
-                file_router_one_ext(f, filepath, ext.lower(), audio_exts, image_exts, video_exts)
+        route_fpaths_by_ext(fpath, fpaths_sorted_by_ftype, launchers)
 
-    for file_type in file_types:
-        if f[file_type]["nb"] > 0:
-            run(launchers[file_type] + " \"" + '\" \"'.join(f[file_type]["file_paths"]) + "\"")
+    for ftype in ftypes:
+        if len(fpaths_sorted_by_ftype[ftype]) > 0:
+            launch_cmds(fpaths_sorted_by_ftype, ftype, launchers, launchersconf_path)
 
 
 if __name__ == "__main__":
