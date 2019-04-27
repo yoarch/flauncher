@@ -140,7 +140,7 @@ def check_nb_files(input_files):
 
 
 def print_cmd(cmd):
-    print(CBWHITE + "\n\n\t%s\n" % cmd + CNORMAL_WHITE, end='')
+    print(CBWHITE + "\n\t%s\n\n" % cmd + CNORMAL_WHITE, end='')
 
 
 def find_folder_path_not_existing(base_path, folder_name, ftype):
@@ -232,7 +232,7 @@ def run_archive_b_f(launchers, ftype, fpaths_sorted_by_ftype, launchersconf_path
             logger.warning("skipping the %s archive" % archive_path)
             continue
 
-        cmd_pattern = launchers[ftype]
+        cmd_pattern = launchers[ftype]["cmd"]
         cmd = cmd_pattern.replace("FOLDER_PATH", folder_path)
         cmd = cmd.replace("ARCHIVE_PATH", archive_path)
         print_cmd(cmd)

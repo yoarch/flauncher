@@ -52,7 +52,7 @@
   "text": {
     "type": "lonely",
     "exts": ["text", "txt", "conf", "sh", "py", "note", "log", "c", "h", "js", "tmp", "json", "csv", "java", "xml", "tex", "js"],
-    "cmd": "atom"
+    "cmd": "atom -a"
   },
   "tgz": {
     "type": "archive_a",
