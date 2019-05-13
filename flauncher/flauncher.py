@@ -5,18 +5,15 @@ import subprocess
 from shutil import copyfile
 from os import listdir
 
-import logging
-from .logger import build_logger
-# from logger import build_logger
-logger = build_logger("flauncher", level=logging.INFO)
 
-
-CRED = '\033[31m'
+CBRED = '\033[38;5;196;1m'
+CBORANGE = '\033[38;5;202;1m'
+CBGREEN = '\033[38;5;40;1m'
 CBYELLOW = '\033[1;33m'
 CBWHITE = '\033[1;37m'
 CBPURPLE = '\033[1;35m'
 CBBLUE = '\033[1;34m'
-CNORMAL_WHITE = '\033[0m'
+CBASE = '\033[0m'
 
 
 def check_help_request(arguments):
@@ -34,12 +31,32 @@ def check_help_request(arguments):
                 replace('***', '').replace('***', '').replace('**', '').replace('*', '')
 
             print(" " + line, end='')
-        print(CNORMAL_WHITE)
+        print(CBASE)
         exit()
 
 
 def run(command):
     return subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout.readlines()
+
+
+def OK(msg=""):
+    print(CBGREEN + "\n\t[OK] " + CBASE + msg)
+
+
+def INFO(msg=""):
+    print(CBWHITE + "\n\t[INFO] " + CBASE + msg)
+
+
+def WARNING(msg=""):
+    print(CBORANGE + "\n\t[WARNING] " + CBASE + msg)
+
+
+def ERROR(msg=""):
+    print(CBRED + "\n\t[ERROR] " + CBASE + msg)
+
+
+def skipped():
+    print(CBBLUE + "\n\t\t\tskipped\n\n" + CBASE)
 
 
 def init_fpaths_sorted_by_ftype(ftypes):
@@ -68,17 +85,17 @@ def create_perso_flauncher_folder(perso_flauncher_folder_path):
     if not os.path.exists(perso_flauncher_folder_path):
         try:
             os.mkdir(perso_flauncher_folder_path)
-        except OSError:
-            logger.error("creation of the directory %s failed" % perso_flauncher_folder_path)
+        except OSError as err_msg:
+            ERROR("creation of the directory " + CBBLUE + "%s" % perso_flauncher_folder_path + CBASE + " failed:\n%s" % err_msg)
 
 
 def create_perso_flauncher_file(perso_flauncher_file_path, def_launchers_fname):
     if not os.path.exists(perso_flauncher_file_path):
         default_launchersconf_path = "/usr/lib/flauncher/" + def_launchers_fname
 
-        logger.info("the personal launchers conf path %s doesn't exist\n\n\tcopying the default launchers conf from %s "
-                    "to %s\n\n\t\tdon't forget to customize the launchers by editing "
-                    "this file" % (perso_flauncher_file_path, default_launchersconf_path, perso_flauncher_file_path))
+        INFO("the personal launchers conf path %s doesn't exist\n\n\tcopying the default launchers conf "
+             "from %s to %s\n\n\t\tdon't forget to customize the launchers by editing this file"
+             % (perso_flauncher_file_path, default_launchersconf_path, perso_flauncher_file_path))
 
         copyfile(default_launchersconf_path, perso_flauncher_file_path)
 
@@ -93,9 +110,9 @@ def get_abs_path(files):
 def check_path_issues(file_path):
     path_issue = True
     if not os.path.exists(file_path):
-        logger.warning("the path %s doesn't exist" % file_path)
+        WARNING("the path " + CBBLUE + "%s" + CBASE + " doesn't exist" % file_path)
     elif os.path.isdir(file_path):
-        logger.warning("the path %s is a directory, not a file" % file_path)
+        WARNING("the path " + CBBLUE + "%s" + CBASE + " is a directory, not a file" % file_path)
     else:
         path_issue = False
     return path_issue
@@ -128,7 +145,7 @@ def generate_folder_from_archive(archive_path, archive_ext, ftype):
     try:
         os.mkdir(folder_path)
     except OSError:
-        logger.error("creation of the directory %s failed" % folder_path)
+        ERROR("creation of the directory " + CBBLUE + "%s" + CBASE + " failed" % folder_path)
         folder_path = None
 
     return folder_path
@@ -140,7 +157,7 @@ def check_nb_files(input_files):
 
 
 def print_cmd(cmd):
-    print(CBWHITE + "\n\t%s\n\n" % cmd + CNORMAL_WHITE, end='')
+    print(CBWHITE + "\n\t%s\n\n" % cmd + CBASE, end='')
 
 
 def find_folder_path_not_existing(base_path, folder_name, ftype):
@@ -221,15 +238,14 @@ def run_archive_a_f(launchers, ftype, fpaths_sorted_by_ftype):
 def run_archive_b_f(launchers, ftype, fpaths_sorted_by_ftype, launchersconf_path):
 
     if len(launchers[ftype]["exts"]) != 1:
-        logger.error("an archive type can only have one extension, got %s extensions\n"
-                     "please review your launcher conf file located in %s" % (
-                     launchers[ftype]["exts"], launchersconf_path))
+        ERROR("an archive type can only have one extension, got %s" % launchers[ftype]["exts"] + "extensions\n"
+              "please review your launcher conf file located in " + CBBLUE + "%s" + CBASE % launchersconf_path)
         return
 
     for archive_path in fpaths_sorted_by_ftype[ftype]:
         folder_path = generate_folder_from_archive(archive_path, launchers[ftype]["exts"][0], ftype)
         if not folder_path:
-            logger.warning("skipping the %s archive" % archive_path)
+            WARNING("skipping the %s archive" % archive_path)
             continue
 
         cmd_pattern = launchers[ftype]["cmd"]
