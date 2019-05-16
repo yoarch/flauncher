@@ -227,13 +227,15 @@ def run_su_no_su_fpaths(fpaths, app_cmd):
         else:
             fpaths_no_su.append(fpath)
 
-    cmd = app_cmd + " \"" + '\" \"'.join(fpaths_no_su) + "\""
-    print_cmd(cmd)
-    run(cmd)
+    if fpaths_no_su:
+        cmd = app_cmd + " \"" + '\" \"'.join(fpaths_no_su) + "\""
+        print_cmd(cmd)
+        run(cmd)
 
-    cmd = "sudo " + app_cmd + " \"" + '\" \"'.join(fpaths_su) + "\""
-    print_cmd(cmd)
-    run(cmd)
+    if fpaths_su:
+        cmd = "sudo " + app_cmd + " \"" + '\" \"'.join(fpaths_su) + "\""
+        print_cmd(cmd)
+        run(cmd)
 
 
 def get_playlist_fpaths_same_ftype(lonely_fpath, launchers, ftype, f_needs_su):
