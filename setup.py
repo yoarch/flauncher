@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="flauncher",
-    version="1.1.1",
+    version="1.1.3",
     python_requires='>=3',
     author="yoarch",
     author_email="yo.managements@gmail.com",

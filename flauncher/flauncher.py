@@ -39,6 +39,18 @@ def run(command):
     return subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout.readlines()
 
 
+def needs_su(fpath, write=True, read=True, execute=False):
+
+    if write and not os.access(fpath, os.W_OK):
+        return True
+    if read and not os.access(fpath, os.R_OK):
+        return True
+    if execute and not os.access(fpath, os.X_OK):
+        return True
+
+    return False
+
+
 def OK(msg=""):
     print(CBGREEN + "\n\t[OK] " + CBASE + msg)
 
@@ -110,9 +122,9 @@ def get_abs_path(files):
 def check_path_issues(file_path):
     path_issue = True
     if not os.path.exists(file_path):
-        WARNING("the path " + CBBLUE + "%s" + CBASE + " doesn't exist" % file_path)
+        WARNING("the path " + CBBLUE + "%s" % file_path + CBASE + " doesn't exist")
     elif os.path.isdir(file_path):
-        WARNING("the path " + CBBLUE + "%s" + CBASE + " is a directory, not a file" % file_path)
+        WARNING("the path " + CBBLUE + "%s" % file_path + CBASE + " is a directory, not a file")
     else:
         path_issue = False
     return path_issue
@@ -191,15 +203,40 @@ def run_playlist_f(launchers, ftype, fpaths_sorted_by_ftype):
     app_cmd = launchers[ftype]["cmd"]
 
     fpaths = fpaths_sorted_by_ftype[ftype]
-    if len(fpaths) == 1:
-        fpaths = get_playlist_fpaths_same_ftype(fpaths[0], launchers, ftype)
 
-    cmd = app_cmd + " \"" + '\" \"'.join(fpaths) + "\""
+    if len(fpaths) == 1:
+        f_needs_su = needs_su(fpaths[0])
+        fpaths = get_playlist_fpaths_same_ftype(fpaths[0], launchers, ftype, f_needs_su)
+        cmd = app_cmd + " \"" + '\" \"'.join(fpaths) + "\""
+        if f_needs_su:
+            cmd = "sudo " + cmd
+
+        print_cmd(cmd)
+        run(cmd)
+    else:
+        run_su_no_su_fpaths(fpaths, app_cmd)
+
+
+def run_su_no_su_fpaths(fpaths, app_cmd):
+
+    fpaths_no_su, fpaths_su = list(), list()
+
+    for fpath in fpaths:
+        if needs_su(fpath):
+            fpaths_su.append(fpath)
+        else:
+            fpaths_no_su.append(fpath)
+
+    cmd = app_cmd + " \"" + '\" \"'.join(fpaths_no_su) + "\""
+    print_cmd(cmd)
+    run(cmd)
+
+    cmd = "sudo " + app_cmd + " \"" + '\" \"'.join(fpaths_su) + "\""
     print_cmd(cmd)
     run(cmd)
 
 
-def get_playlist_fpaths_same_ftype(lonely_fpath, launchers, ftype):
+def get_playlist_fpaths_same_ftype(lonely_fpath, launchers, ftype, f_needs_su):
 
     fnames_same_ftype = list()
     folder_path_lonely_f = os.path.dirname(lonely_fpath)
@@ -207,8 +244,10 @@ def get_playlist_fpaths_same_ftype(lonely_fpath, launchers, ftype):
 
     for fname in listdir(folder_path_lonely_f):
         for ext in launchers[ftype]["exts"]:
-            if fname.endswith(ext) and os.path.isfile(folder_path_lonely_f + "/" + fname):
-                fnames_same_ftype.append(fname)
+            fpath = folder_path_lonely_f + "/" + fname
+            if fname.endswith(ext) and os.path.isfile(fpath):
+                if needs_su(fpath) == f_needs_su:
+                    fnames_same_ftype.append(fname)
                 break
 
     fnames_same_ftype.sort()
@@ -223,14 +262,14 @@ def run_lonely_f(launchers, ftype, fpaths_sorted_by_ftype):
 
     fpaths = fpaths_sorted_by_ftype[ftype]
 
-    cmd = app_cmd + " \"" + '\" \"'.join(fpaths) + "\""
-    print_cmd(cmd)
-    run(cmd)
+    run_su_no_su_fpaths(fpaths, app_cmd)
 
 
 def run_archive_a_f(launchers, ftype, fpaths_sorted_by_ftype):
     for archive_path in fpaths_sorted_by_ftype[ftype]:
         cmd = launchers[ftype]["cmd"] + " \"" + archive_path + "\""
+        if needs_su(archive_path):
+            cmd = "sudo " + cmd
         print_cmd(cmd)
         run(cmd)
 
@@ -251,6 +290,8 @@ def run_archive_b_f(launchers, ftype, fpaths_sorted_by_ftype, launchersconf_path
         cmd_pattern = launchers[ftype]["cmd"]
         cmd = cmd_pattern.replace("FOLDER_PATH", folder_path)
         cmd = cmd.replace("ARCHIVE_PATH", archive_path)
+        if needs_su(archive_path):
+            cmd = "sudo " + cmd
         print_cmd(cmd)
         run(cmd)
 
