@@ -4,19 +4,29 @@
     "exts": ["mp3", "wav", "m4a", "aac", "mp1", "mp2", "flac", "aa", "aax", "act", "aiff", "amr", "ape", "au", "awb", "dct", "dss", "dvf", "gsm", "iklax", "ivs", "m4b", "m4p", "mmf", "mpc", "msv", "nmf", "nsf", "oga", "mogg", "opus", "ra", "raw", "sin", "tta", "vox", "wma", "wv", "8svx"],
     "cmd": "mpv -fs --loop-playlist -script-opts=osc-hidetimeout=6000 --player-operation-mode=pseudo-gui"
   },
+  "font": {
+    "type": "lonely",
+    "exts": ["sfd, ttf"],
+    "cmd": "fontforge"
+  },
+  "graphical": {
+    "type": "lonely",
+    "exts": ["xcf"],
+    "cmd": "gimp"
+  },
   "image": {
     "type": "playlist",
     "exts": ["jpg", "jpeg", "png", "tif", "gif", "bmp", "pjpeg", "jfif", "exif", "tiff", "png", "ppm", "pgm", "pbm", "pnm", "webp", "hdr", "heif", "bat", "bpg"],
-    "cmd": "feh -d -Y -F"
+    "cmd": "feh -d -Y -F --edit"
   },
   "libreoffice_writer": {
     "type": "lonely",
-    "exts": ["odt"],
+    "exts": ["odt", "doc"],
     "cmd": "libreoffice --writer"
   },
   "libreoffice_calc": {
     "type": "lonely",
-    "exts": ["ods"],
+    "exts": ["ods", "calc"],
     "cmd": "libreoffice --calc"
   },
   "pdf": {
@@ -61,8 +71,8 @@
   },
   "video": {
     "type": "playlist",
-    "exts": ["avi", "mpeg", "mp4", "ogg", "quicktime", "webm", "mp2t", "flv", "mov", "webm", "mkv", "mts", "vob", "ogv", "drc", "gif", "gifv", "mng", "mts", "m2ts", "mwv", "yuv", "rm", "rmvb", "asf", "amv", "m4v", "mpg", "mpe", "mpv", "m2v", "svi", "3gp", "3g2", "mxf", "roq", "nsv", "f4v", "f4p", "f4a", "f4b"],
-    "cmd": "mpv -fs --loop-playlist -script-opts=osc-hidetimeout=2000"
+    "exts": ["avi", "mpeg", "mp4", "ogg", "quicktime", "webm", "mp2t", "flv", "mov", "mkv", "mts", "vob", "ogv", "drc", "gif", "gifv", "mng", "mts", "m2ts", "mwv", "yuv", "rm", "rmvb", "asf", "amv", "m4v", "mpg", "mpe", "mpv", "m2v", "svi", "3gp", "3g2", "mxf", "roq", "nsv", "f4v", "f4p", "f4a", "f4b"],
+    "cmd": "mpv -fs --loop-playlist --no-sub -script-opts=osc-hidetimeout=2000"
   },
   "zip": {
     "type": "archive_b",

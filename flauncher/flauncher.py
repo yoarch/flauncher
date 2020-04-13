@@ -2,25 +2,42 @@ import sys
 import json
 import os
 import subprocess
-from shutil import copyfile
 from os import listdir
+import ntpath
 
+__author__ = 'Yann Orieult'
 
 CBRED = '\033[38;5;196;1m'
 CBORANGE = '\033[38;5;202;1m'
-CBGREEN = '\033[38;5;40;1m'
-CBYELLOW = '\033[1;33m'
 CBWHITE = '\033[1;37m'
-CBPURPLE = '\033[1;35m'
 CBBLUE = '\033[1;34m'
 CBASE = '\033[0m'
 
 
-def check_help_request(arguments):
-    if len(arguments) == 1 and (arguments[0] == "-h" or arguments[0] == "--help"):
-        README_path = "/usr/lib/flauncher/README.md"
+def _man_inputs(inputs):
 
-        f = open(README_path, 'r')
+    _help_requested(inputs)
+
+    inputs, mode = _man_special_arg(inputs)
+
+    home_p = os.environ['HOME']
+    conf_path = home_p + "/.config/flauncher/" + mode + ".json"
+
+    _check_conf_p_exists(conf_path, mode, home_p)
+
+    if len(inputs) == 0:
+        _error("needs at least one file to be %sed" % mode)
+        exit(1)
+
+    with open(conf_path) as json_f:
+        return inputs, json.load(json_f), conf_path
+
+
+def _help_requested(inputs):
+    if len(inputs) == 1 and (inputs[0] == "-h" or inputs[0] == "--help"):
+        readme_path = "/usr/lib/flauncher/README.md"
+
+        f = open(readme_path, 'r')
         print(CBBLUE + "\n\t#######      flauncher documentation      #######\n" + CBWHITE)
 
         for line in f:
@@ -32,38 +49,62 @@ def check_help_request(arguments):
 
             print(" " + line, end='')
         print(CBASE)
-        exit()
+        exit(0)
 
 
-def run(command):
+def _man_special_arg(inputs):
+    mode = "launch"
+
+    if "-m" in inputs:
+        m_index = inputs.index("-m")
+        if len(inputs) < m_index + 1:
+            _error("must enter the wanted mode after the " + CBWHITE + "-m" + CBASE + " option\n\t" +
+                   "such as \"launch\" or \"edit\"")
+            exit(1)
+        mode = inputs[m_index + 1]
+        del inputs[m_index: m_index + 2]
+
+    if "-f" in inputs:
+        inputs.remove("-f")
+
+    return inputs, mode
+
+
+def _check_conf_p_exists(conf_path, mode, home_p):
+    if not os.path.exists(conf_path):
+        if mode == "launch":
+            _error("no %s" % conf_path + "\n\tplease copy the " + CBBLUE + "/usr/lib/flauncher/launch.json" + CBASE +
+                   " conf file to the " + CBBLUE + "%s/.config/flauncher/" % home_p + CBASE + " folder\n\t\t" +
+                   "don't forget to " + CBWHITE + "update" + CBASE + " it with your applications")
+        else:
+            _error("you picked the " + CBWHITE + "%s" % mode + CBASE + " mode but there is no " + CBBLUE +
+                   "%s" % conf_path + CBASE + " conf file" + "\n\tplease copy the " + CBBLUE +
+                   "/usr/lib/flauncher/launch.json" + CBASE + " conf file to the " + CBBLUE +
+                   "%s/.config/flauncher/" % home_p + CBASE + " folder\n\t\tname it " + CBWHITE + "%s.json" % mode +
+                   CBASE + " if you want to use the " + CBWHITE + "\"-m %s\"" % mode + CBASE + " mode\n\t\t\tdon't " +
+                   "forget to update it with your applications")
+        exit(1)
+
+
+def _run(command):
     return subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout.readlines()
 
 
-def needs_su(fpath, write=True, read=True, execute=False):
-
-    if write and not os.access(fpath, os.W_OK):
+def _needs_su(f_path, write=True, read=True, execute=False):
+    if write and not os.access(f_path, os.W_OK):
         return True
-    if read and not os.access(fpath, os.R_OK):
+    if read and not os.access(f_path, os.R_OK):
         return True
-    if execute and not os.access(fpath, os.X_OK):
+    if execute and not os.access(f_path, os.X_OK):
         return True
-
     return False
 
 
-def OK(msg=""):
-    print(CBGREEN + "\n\t[OK] " + CBASE + msg)
-
-
-def INFO(msg=""):
-    print(CBWHITE + "\n\t[INFO] " + CBASE + msg)
-
-
-def WARNING(msg=""):
+def _warning(msg=""):
     print(CBORANGE + "\n\t[WARNING] " + CBASE + msg)
 
 
-def ERROR(msg=""):
+def _error(msg=""):
     print(CBRED + "\n\t[ERROR] " + CBASE + msg)
 
 
@@ -71,78 +112,37 @@ def skipped():
     print(CBBLUE + "\n\t\t\tskipped\n\n" + CBASE)
 
 
-def init_fpaths_sorted_by_ftype(ftypes):
-    fpaths_sorted_by_ftype = dict()
-    for ftype in ftypes:
-        fpaths_sorted_by_ftype[ftype] = list()
-    return fpaths_sorted_by_ftype
-
-
-def get_launchers():
-
-    def_launchers_fname = "default_launchers.json"
-    perso_launchers_fname = "launchers.json"
-    HOME_PATH = os.environ['HOME']
-    perso_flauncher_folder_path = HOME_PATH + "/.config/flauncher/"
-    perso_flauncher_file_path = perso_flauncher_folder_path + perso_launchers_fname
-
-    create_perso_flauncher_folder(perso_flauncher_folder_path)
-    create_perso_flauncher_file(perso_flauncher_file_path, def_launchers_fname)
-
-    with open(perso_flauncher_file_path) as launchers_f:
-        return json.load(launchers_f), perso_flauncher_file_path
-
-
-def create_perso_flauncher_folder(perso_flauncher_folder_path):
-    if not os.path.exists(perso_flauncher_folder_path):
-        try:
-            os.mkdir(perso_flauncher_folder_path)
-        except OSError as err_msg:
-            ERROR("creation of the directory " + CBBLUE + "%s" % perso_flauncher_folder_path + CBASE + " failed:\n%s" % err_msg)
-
-
-def create_perso_flauncher_file(perso_flauncher_file_path, def_launchers_fname):
-    if not os.path.exists(perso_flauncher_file_path):
-        default_launchersconf_path = "/usr/lib/flauncher/" + def_launchers_fname
-
-        INFO("the personal launchers conf path %s doesn't exist\n\n\tcopying the default launchers conf "
-             "from %s to %s\n\n\t\tdon't forget to customize the launchers by editing this file"
-             % (perso_flauncher_file_path, default_launchersconf_path, perso_flauncher_file_path))
-
-        copyfile(default_launchersconf_path, perso_flauncher_file_path)
-
-
-def get_abs_path(files):
-    abs_fpaths = list()
+def _get_abs_path(files):
+    abs_f_paths = list()
     for file in files:
-        abs_fpaths.append(os.path.normpath((os.path.join(os.getcwd(), os.path.expanduser(file)))))
-    return abs_fpaths
+        abs_f_paths.append(os.path.normpath((os.path.join(os.getcwd(), os.path.expanduser(file)))))
+    return abs_f_paths
 
 
-def check_path_issues(file_path):
-    path_issue = True
+def _is_path_issue(file_path):
     if not os.path.exists(file_path):
-        WARNING("the path " + CBBLUE + "%s" % file_path + CBASE + " doesn't exist")
+        _warning("the path " + CBBLUE + "%s" % file_path + CBASE + " doesn't exist")
+        return True
     elif os.path.isdir(file_path):
-        WARNING("the path " + CBBLUE + "%s" % file_path + CBASE + " is a directory, not a file")
+        _warning("the path " + CBBLUE + "%s" % file_path + CBASE + " is a directory, not a file")
+        return True
     else:
-        path_issue = False
-    return path_issue
+        return False
 
 
-def check_binary(file_path):
-    is_binary = False
-    textchars = bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(0x20, 0x100)) - {0x7f})
-    is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
+def _is_binary(file_path):
+    binary = False
+    text_chars = bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(0x20, 0x100)) - {0x7f})
+    is_binary_str = lambda bytes: bool(bytes.translate(None, text_chars))
     try:
-        if is_binary_string(open(file_path, 'rb').read(1024)):
-            is_binary = True
-    except:
+        if is_binary_str(open(file_path, 'rb').read(1024)):
+            binary = True
+    finally:
         pass
-    return is_binary
+    return binary
 
 
-def generate_folder_from_archive(archive_path, archive_ext, ftype):
+def _create_archive_folder(archive_path, archive_ext, ftype):
 
     base_path = os.path.dirname(archive_path)
     fname = os.path.basename(archive_path)
@@ -152,27 +152,22 @@ def generate_folder_from_archive(archive_path, archive_ext, ftype):
     folder_path = base_path + "/" + folder_name
 
     if os.path.exists(folder_path):
-        folder_path = find_folder_path_not_existing(base_path, folder_name, ftype)
+        folder_path = _find_available_path(base_path, folder_name, ftype)
 
     try:
         os.mkdir(folder_path)
     except OSError:
-        ERROR("creation of the directory " + CBBLUE + "%s" + CBASE + " failed" % folder_path)
+        _error("creation of the directory " + CBBLUE + "%s" + CBASE + " failed" % folder_path)
         folder_path = None
 
     return folder_path
 
 
-def check_nb_files(input_files):
-    if len(input_files) == 0:
-        raise ValueError("need at least one file to launch ...")
-
-
-def print_cmd(cmd):
+def _print_cmd(cmd):
     print(CBWHITE + "\n\t%s\n\n" % cmd + CBASE, end='')
 
 
-def find_folder_path_not_existing(base_path, folder_name, ftype):
+def _find_available_path(base_path, folder_name, ftype):
     folder_archive_path = base_path + "/" + folder_name + "_" + ftype
     ref_folder_archive_path = folder_archive_path
     if os.path.exists(folder_archive_path):
@@ -185,158 +180,191 @@ def find_folder_path_not_existing(base_path, folder_name, ftype):
     return folder_archive_path
 
 
-def launch_cmds(fpaths_sorted_by_ftype, ftype, launchers, launchersconf_path):
-    if launchers[ftype]["type"] == "playlist":
-        run_playlist_f(launchers, ftype, fpaths_sorted_by_ftype)
+def _run_cmds(f_paths_sorted_by_f_type, ftype, conf, conf_path):
+    if conf[ftype]["type"] == "playlist":
+        _run_playlist_f(conf, ftype, f_paths_sorted_by_f_type[ftype])
 
-    if launchers[ftype]["type"] == "lonely":
-        run_lonely_f(launchers, ftype, fpaths_sorted_by_ftype)
+    if conf[ftype]["type"] == "lonely":
+        _run_cmd_vs_su(f_paths_sorted_by_f_type[ftype], conf[ftype]["cmd"])
 
-    if launchers[ftype]["type"] == "archive_a":
-        run_archive_a_f(launchers, ftype, fpaths_sorted_by_ftype)
+    if conf[ftype]["type"] == "archive_a":
+        _run_archive_a_f(conf, ftype, f_paths_sorted_by_f_type)
 
-    if launchers[ftype]["type"] == "archive_b":
-        run_archive_b_f(launchers, ftype, fpaths_sorted_by_ftype, launchersconf_path)
+    if conf[ftype]["type"] == "archive_b":
+        _run_archive_b_f(conf, ftype, f_paths_sorted_by_f_type, conf_path)
 
 
-def run_playlist_f(launchers, ftype, fpaths_sorted_by_ftype):
-    app_cmd = launchers[ftype]["cmd"]
+def _run_playlist_f(conf, ftype, f_paths):
+    app_cmd = conf[ftype]["cmd"]
 
-    fpaths = fpaths_sorted_by_ftype[ftype]
+    if len(f_paths) == 1:
+        f_path = f_paths[0]
+        f_needs_su = _needs_su(f_path)
+        f_paths = _get_playlist_vs_ext(f_path, conf, ftype, f_needs_su)
 
-    if len(fpaths) == 1:
-        f_needs_su = needs_su(fpaths[0])
-        fpaths = get_playlist_fpaths_same_ftype(fpaths[0], launchers, ftype, f_needs_su)
-        cmd = app_cmd + " \"" + '\" \"'.join(fpaths) + "\""
+        cmd = app_cmd + " \"" + '\" \"'.join(f_paths) + "\""
+
         if f_needs_su:
             cmd = "sudo " + cmd
 
-        print_cmd(cmd)
-        run(cmd)
+        _print_cmd(cmd)
+        _run(cmd)
     else:
-        run_su_no_su_fpaths(fpaths, app_cmd)
+        _run_cmd_vs_su(f_paths, app_cmd)
 
 
-def run_su_no_su_fpaths(fpaths, app_cmd):
+def _run_cmd_vs_su(f_paths, app_cmd):
 
-    fpaths_no_su, fpaths_su = list(), list()
+    f_paths_no_su, f_paths_su = list(), list()
 
-    for fpath in fpaths:
-        if needs_su(fpath):
-            fpaths_su.append(fpath)
+    for f_path in f_paths:
+        if _needs_su(f_path):
+            f_paths_su.append(f_path)
         else:
-            fpaths_no_su.append(fpath)
+            f_paths_no_su.append(f_path)
 
-    if fpaths_no_su:
-        cmd = app_cmd + " \"" + '\" \"'.join(fpaths_no_su) + "\""
-        print_cmd(cmd)
-        run(cmd)
+    if f_paths_no_su:
+        cmd = app_cmd + " \"" + '\" \"'.join(f_paths_no_su) + "\""
+        _print_cmd(cmd)
+        _run(cmd)
 
-    if fpaths_su:
-        cmd = "sudo " + app_cmd + " \"" + '\" \"'.join(fpaths_su) + "\""
-        print_cmd(cmd)
-        run(cmd)
+    if f_paths_su:
+        cmd = "sudo " + app_cmd + " \"" + '\" \"'.join(f_paths_su) + "\""
+        _print_cmd(cmd)
+        _run(cmd)
 
 
-def get_playlist_fpaths_same_ftype(lonely_fpath, launchers, ftype, f_needs_su):
+def _get_playlist_vs_ext(f_path, conf, f_type, f_needs_su):
 
-    fnames_same_ftype = list()
-    folder_path_lonely_f = os.path.dirname(lonely_fpath)
-    lonely_fname = os.path.basename(lonely_fpath)
+    f_names_local_same_ext = list()
+    folder_path = os.path.dirname(f_path)
 
-    for fname in listdir(folder_path_lonely_f):
-        for ext in launchers[ftype]["exts"]:
-            fpath = folder_path_lonely_f + "/" + fname
-            if fname.endswith(ext) and os.path.isfile(fpath):
-                if needs_su(fpath) == f_needs_su:
-                    fnames_same_ftype.append(fname)
+    entered_f_name = os.path.basename(f_path)
+
+    for fname in listdir(folder_path):
+        for ext in conf[f_type]["exts"]:
+            f_path = folder_path + "/" + fname
+            # if fname.lower().endswith(ext) and os.path.isfile(f_path):
+            if fname.lower().endswith(ext):
+                if _needs_su(f_path) == f_needs_su:
+                    f_names_local_same_ext.append(fname)
                 break
 
-    fnames_same_ftype.sort()
-    pos_targeted_f = fnames_same_ftype.index(lonely_fname)
-    fnames_same_ftype_sorted = fnames_same_ftype[pos_targeted_f:] + fnames_same_ftype[:pos_targeted_f]
-    playlist_fpaths = [folder_path_lonely_f + "/" + fname_same_ftype for fname_same_ftype in fnames_same_ftype_sorted]
-    return playlist_fpaths
+    # f_names_local_same_ext.sort()
+    f_names_local_same_ext = _sort_str_list(f_names_local_same_ext)
+    index_targeted_f = f_names_local_same_ext.index(entered_f_name)
+    f_names_same_ext_sorted = f_names_local_same_ext[index_targeted_f:] + f_names_local_same_ext[:index_targeted_f]
+
+    return [folder_path + "/" + f_name for f_name in f_names_same_ext_sorted]
 
 
-def run_lonely_f(launchers, ftype, fpaths_sorted_by_ftype):
-    app_cmd = launchers[ftype]["cmd"]
+def _sort_str_list(l):
+    full_num_elements = list()
+    num_elements = list()
+    str_elements = list()
+    for element in l:
+        base_name = element.split(".")[0]
+        if _str_is_int(base_name):
+            num_elements.append(int(base_name))
+            full_num_elements.append(element)
+        else:
+            str_elements.append(element)
 
-    fpaths = fpaths_sorted_by_ftype[ftype]
+    full_num_elements = [x for _, x in sorted(zip(num_elements, full_num_elements))]
+    str_elements.sort()
+    return full_num_elements + str_elements
 
-    run_su_no_su_fpaths(fpaths, app_cmd)
+
+def _str_is_int(str_var):
+    try:
+        int(str_var)
+        return True
+    except ValueError:
+        return False
 
 
-def run_archive_a_f(launchers, ftype, fpaths_sorted_by_ftype):
-    for archive_path in fpaths_sorted_by_ftype[ftype]:
-        cmd = launchers[ftype]["cmd"] + " \"" + archive_path + "\""
-        if needs_su(archive_path):
+def _run_archive_a_f(conf, ftype, f_paths_sorted_by_f_type):
+    for archive_path in f_paths_sorted_by_f_type[ftype]:
+        cmd = conf[ftype]["cmd"] + " \"" + archive_path + "\""
+        if _needs_su(archive_path):
             cmd = "sudo " + cmd
-        print_cmd(cmd)
-        run(cmd)
+        _print_cmd(cmd)
+        _run(cmd)
 
 
-def run_archive_b_f(launchers, ftype, fpaths_sorted_by_ftype, launchersconf_path):
+def _run_archive_b_f(conf, f_type, f_paths_sorted_by_f_type, conf_path):
 
-    if len(launchers[ftype]["exts"]) != 1:
-        ERROR("an archive type can only have one extension, got %s" % launchers[ftype]["exts"] + "extensions\n"
-              "please review your launcher conf file located in " + CBBLUE + "%s" + CBASE % launchersconf_path)
+    if len(conf[f_type]["exts"]) != 1:
+        _error("an archive type can only have one extension, got %s" % conf[f_type]["exts"] +
+               "extensions\nplease review your launcher conf file located in " + CBBLUE + "%s" + CBASE % conf_path)
         return
 
-    for archive_path in fpaths_sorted_by_ftype[ftype]:
-        folder_path = generate_folder_from_archive(archive_path, launchers[ftype]["exts"][0], ftype)
+    for archive_path in f_paths_sorted_by_f_type[f_type]:
+        folder_path = _create_archive_folder(archive_path, conf[f_type]["exts"][0], f_type)
         if not folder_path:
-            WARNING("skipping the %s archive" % archive_path)
+            _warning("skipping the %s archive" % archive_path)
             continue
 
-        cmd_pattern = launchers[ftype]["cmd"]
+        cmd_pattern = conf[f_type]["cmd"]
         cmd = cmd_pattern.replace("FOLDER_PATH", folder_path)
         cmd = cmd.replace("ARCHIVE_PATH", archive_path)
-        if needs_su(archive_path):
+        if _needs_su(archive_path):
             cmd = "sudo " + cmd
-        print_cmd(cmd)
-        run(cmd)
+        _print_cmd(cmd)
+        _run(cmd)
 
 
-def get_ftypes(launchers):
-    ftypes = list()
-    for ftype in launchers:
-        ftypes.append(ftype)
-    return ftypes
+def _f_name(path):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
 
 
-def route_fpaths_by_ext(fpath, fpaths_sorted_by_ftype, launchers):
-    for ftype_key, ftype_value in launchers.items():
-        for ext in ftype_value["exts"]:
-            if fpath.lower().endswith("." + ext.lower()):
-                fpaths_sorted_by_ftype[ftype_key].append(fpath)
+def _f_ext(path):
+    name = _f_name(path)
+    dot_split = name.split(".")
+    if len(dot_split) == 1:
+        return ""
+    else:
+        return dot_split[-1]
+
+
+def _sort_f_by_ext(f_path, f_paths_sorted_by_f_type, conf):
+
+    f_ext = _f_ext(f_path).lower()
+
+    if f_ext == "" and not _is_binary(f_path):
+        if "text" not in f_paths_sorted_by_f_type:
+            f_paths_sorted_by_f_type["text"] = list()
+        f_paths_sorted_by_f_type["text"].append(f_path)
+        return
+
+    for f_type, info in conf.items():
+        for ext in info["exts"]:
+
+            if f_ext == ext:
+                if f_type not in f_paths_sorted_by_f_type:
+                    f_paths_sorted_by_f_type[f_type] = list()
+                f_paths_sorted_by_f_type[f_type].append(f_path)
                 return
-
-    if not check_binary(fpath):
-        fpaths_sorted_by_ftype["text"].append(fpath)
+    _warning("file " + CBBLUE + "%s" % f_path + CBASE + " could not be treated, " +
+             "its extension " + CBWHITE + "%s" % f_ext + CBASE + " is unknown from the conf file")
 
 
 def main():
 
-    input_parms = sys.argv[1:]
-    check_help_request(input_parms)
-    check_nb_files(input_parms)
-    fpaths = get_abs_path(input_parms)
+    f_paths, conf, conf_path = _man_inputs(sys.argv[1:])
+    f_paths = _get_abs_path(f_paths)
 
-    launchers, launchersconf_path = get_launchers()
-    ftypes = get_ftypes(launchers)
-    fpaths_sorted_by_ftype = init_fpaths_sorted_by_ftype(ftypes)
+    f_paths_by_exts = dict()
+    for f_path in f_paths:
 
-    for fpath in fpaths:
-
-        if check_path_issues(fpath):
+        if _is_path_issue(f_path):
             continue
 
-        route_fpaths_by_ext(fpath, fpaths_sorted_by_ftype, launchers)
+        _sort_f_by_ext(f_path, f_paths_by_exts, conf)
 
-    for ftype in ftypes:
-        if len(fpaths_sorted_by_ftype[ftype]) > 0:
-            launch_cmds(fpaths_sorted_by_ftype, ftype, launchers, launchersconf_path)
+    for f_type, f_paths in f_paths_by_exts.items():
+        _run_cmds(f_paths_by_exts, f_type, conf, conf_path)
 
 
 if __name__ == "__main__":
