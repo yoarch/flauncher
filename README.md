@@ -1,5 +1,5 @@
 # flauncher
-universal file launcher for terminal
+Universal file launcher for terminal
 
 Launch any file in terminal with one unique command. flauncher works as a command router and launches the entered files with the according application regarding your preferences settings.
 
@@ -7,13 +7,13 @@ flauncher deals with **audio, image, libreoffice-writer (odt), libreoffice-calc 
 
 # installation
 ```sh
-with pip:
+With pip:
 sudo pip3 install flauncher
 
-with yay:
+With yay:
 yay -a flauncher
 
-with yaourt:
+With yaourt:
 yaourt -a flauncher
 ```
 
@@ -55,14 +55,14 @@ By default any audio and video files are launched with **mpv**, any image with *
 But feel free to customize it with your application preferences.
 
 # examples
-for **help**:<br/>
+For **help**:<br/>
 ```sh
 flauncher -h
 or
 flauncher --help
 ```
 
-launch a **pdf**, a **zip**, a **tar.gz** and a **mp3**:<br/>
+Launch a **pdf**, a **zip**, a **tar.gz** and a **mp3**:<br/>
 ```sh
 flauncher titi.pdf toto/tutu.zip toto/tutu.tar.gz toto/tata/tutu.mp3
 ```
