@@ -108,7 +108,7 @@ def _error(msg=""):
     print(CBRED + "\n\t[ERROR] " + CBASE + msg)
 
 
-def skipped():
+def _skipped():
     print(CBBLUE + "\n\t\t\tskipped\n\n" + CBASE)
 
 
@@ -319,35 +319,45 @@ def _f_name(path):
     return tail or ntpath.basename(head)
 
 
-def _f_ext(path):
-    name = _f_name(path)
-    dot_split = name.split(".")
-    if len(dot_split) == 1:
-        return ""
-    else:
-        return dot_split[-1]
+# def _f_ext(name):
+#     dot_split = name.split(".")
+#     if len(dot_split) == 1:
+#         return ""
+#     else:
+#         return dot_split[-1]
+
+
+def _append_to_text(f_paths_sorted_by_f_type, f_path):
+    if "text" not in f_paths_sorted_by_f_type:
+        f_paths_sorted_by_f_type["text"] = list()
+    f_paths_sorted_by_f_type["text"].append(f_path)
 
 
 def _sort_f_by_ext(f_path, f_paths_sorted_by_f_type, conf):
+    f_name = _f_name(f_path)
 
-    f_ext = _f_ext(f_path).lower()
-
-    if f_ext == "" and not _is_binary(f_path):
-        if "text" not in f_paths_sorted_by_f_type:
-            f_paths_sorted_by_f_type["text"] = list()
-        f_paths_sorted_by_f_type["text"].append(f_path)
+    if f_name.count('.') == 0 or (f_name.startswith('.') and f_name.count('.') == 1):
+        if _is_binary(f_path):
+            _warning("file " + CBBLUE + "%s" % f_path + CBASE + "is considered as text but is binary")
+            _skipped()
+        else:
+            _append_to_text(f_paths_sorted_by_f_type, f_path)
         return
 
     for f_type, info in conf.items():
         for ext in info["exts"]:
 
-            if f_ext == ext:
+            if f_name.endswith(ext):
                 if f_type not in f_paths_sorted_by_f_type:
                     f_paths_sorted_by_f_type[f_type] = list()
                 f_paths_sorted_by_f_type[f_type].append(f_path)
                 return
-    _warning("file " + CBBLUE + "%s" % f_path + CBASE + " could not be treated, " +
-             "its extension " + CBWHITE + "%s" % f_ext + CBASE + " is unknown from the conf file")
+
+    if _is_binary(f_path):
+        _warning("file " + CBBLUE + "%s" % f_path + CBASE + " could not be treated, " +
+                 "its extension is unknown from the conf file")
+    else:
+        _append_to_text(f_paths_sorted_by_f_type, f_path)
 
 
 def main():
