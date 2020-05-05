@@ -14,10 +14,15 @@
     "exts": ["xcf"],
     "cmd": "gimp"
   },
-  "image": {
+  "image_bitmap": {
     "type": "playlist",
     "exts": ["jpg", "jpeg", "png", "tif", "gif", "bmp", "pjpeg", "jfif", "exif", "tiff", "png", "ppm", "pgm", "pbm", "pnm", "webp", "hdr", "heif", "bat", "bpg"],
     "cmd": "feh -d -Y -F --edit"
+  },
+  "image_vectorial": {
+    "type": "lonely",
+    "exts": ["svg"],
+    "cmd": "inkscape"
   },
   "libreoffice_writer": {
     "type": "lonely",
@@ -29,10 +34,15 @@
     "exts": ["ods", "calc"],
     "cmd": "libreoffice --calc"
   },
+  "markup": {
+    "type": "lonely",
+    "exts": ["ad"],
+    "cmd": "brave -a"
+  },
   "pdf": {
     "type": "lonely",
     "exts": ["pdf"],
-    "cmd": "evince -f"
+    "cmd": "brave -a"
   },
   "rar": {
     "type": "archive_a",
@@ -61,7 +71,7 @@
   },
   "text": {
     "type": "lonely",
-    "exts": ["text", "txt", "conf", "sh", "py", "note", "log", "c", "h", "js", "tmp", "json", "csv", "java", "xml", "tex", "js"],
+    "exts": ["text", "txt", "conf", "sh", "py", "note", "log", "c", "h", "js", "tmp", "json", "csv", "css", "java", "xml", "tex", "js"],
     "cmd": "atom -a"
   },
   "tgz": {
@@ -73,6 +83,11 @@
     "type": "playlist",
     "exts": ["avi", "mpeg", "mp4", "ogg", "quicktime", "webm", "mp2t", "flv", "mov", "mkv", "mts", "vob", "ogv", "drc", "gif", "gifv", "mng", "mts", "m2ts", "mwv", "yuv", "rm", "rmvb", "asf", "amv", "m4v", "mpg", "mpe", "mpv", "m2v", "svi", "3gp", "3g2", "mxf", "roq", "nsv", "f4v", "f4p", "f4a", "f4b"],
     "cmd": "mpv -fs --loop-playlist --no-sub -script-opts=osc-hidetimeout=2000"
+  },
+  "web": {
+    "type": "lonely",
+    "exts": ["html"],
+    "cmd": "brave -a"
   },
   "zip": {
     "type": "archive_b",

@@ -5,11 +5,11 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="flauncher",
-    version="1.2.3",
+    version="1.3.0",
     python_requires='>=3',
     author="yoarch",
     author_email="yo.managements@gmail.com",
-    description="universal file launcher for terminal",
+    description="Universal CLI file launcher",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/yoarch/flauncher",
@@ -21,6 +21,6 @@ setuptools.setup(
     ],
     entry_points={
 	"console_scripts": [
-	"flauncher = flauncher.flauncher:main"
+	"flauncher = flauncher.__main__:main"
         ]
     })

@@ -1,5 +1,5 @@
 # flauncher
-Universal file launcher for terminal
+Universal CLI file launcher
 
 Launch any file in terminal with one unique command. flauncher works as a command router and launches the entered files with the according application regarding your preferences settings.
 
