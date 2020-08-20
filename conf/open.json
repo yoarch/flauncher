@@ -2,96 +2,121 @@
   "audio": {
     "type": "playlist",
     "exts": ["mp3", "wav", "m4a", "aac", "mp1", "mp2", "flac", "aa", "aax", "act", "aiff", "amr", "ape", "au", "awb", "dct", "dss", "dvf", "gsm", "iklax", "ivs", "m4b", "m4p", "mmf", "mpc", "msv", "nmf", "nsf", "oga", "mogg", "opus", "ra", "raw", "sin", "tta", "vox", "wma", "wv", "8svx"],
-    "cmd": "mpv -fs --loop-playlist -script-opts=osc-hidetimeout=6000 --player-operation-mode=pseudo-gui"
+    "app": "mpv",
+    "args": "--fs-screen=all -fs --loop-playlist --script-opts=osc-hidetimeout=6000 --player-operation-mode=pseudo-gui"
   },
   "font": {
     "type": "lonely",
     "exts": ["sfd, ttf"],
-    "cmd": "fontforge"
+    "app": "fontforge",
+    "args": null
   },
   "graphical": {
     "type": "lonely",
     "exts": ["xcf"],
-    "cmd": "gimp"
+    "app": "gimp",
+    "args": null
   },
   "image_bitmap": {
     "type": "playlist",
     "exts": ["jpg", "jpeg", "png", "tif", "gif", "bmp", "pjpeg", "jfif", "exif", "tiff", "png", "ppm", "pgm", "pbm", "pnm", "webp", "hdr", "heif", "bat", "bpg"],
-    "cmd": "feh -d -Y -F --edit"
+    "app": "sxiv",
+    "args": "-bf"
   },
   "image_vectorial": {
     "type": "lonely",
     "exts": ["svg"],
-    "cmd": "inkscape"
+    "app": "inkscape",
+    "args": null
   },
   "libreoffice_writer": {
     "type": "lonely",
-    "exts": ["odt", "doc"],
-    "cmd": "libreoffice --writer"
+    "exts": ["odt", "doc", "docx"],
+    "app": "libreoffice --writer",
+    "args": null
   },
   "libreoffice_calc": {
     "type": "lonely",
-    "exts": ["ods", "calc"],
-    "cmd": "libreoffice --calc"
+    "exts": ["ods", "calc", "xlsx"],
+    "app": "libreoffice --calc",
+    "args": null
   },
   "markup": {
     "type": "lonely",
     "exts": ["ad"],
-    "cmd": "brave -a"
+    "app": "brave",
+    "args": "-a"
+  },
+  "python": {
+    "type": "lonely",
+    "exts": ["py"],
+    "app": "pycharm",
+    "args": null
   },
   "pdf": {
     "type": "lonely",
     "exts": ["pdf"],
-    "cmd": "brave -a"
+    "app": "brave",
+    "args": "-a"
   },
   "rar": {
     "type": "archive_a",
     "exts": ["rar"],
-    "cmd": "unrar x"
+    "app": "unrar",
+    "args": "x"
   },
   "tar": {
     "type": "archive_a",
     "exts": ["tar"],
-    "cmd": "tar -xvf"
+    "app": "tar",
+    "args": "-xvf"
   },
   "tar_gz": {
     "type": "archive_a",
     "exts": ["tar.gz"],
-    "cmd": "tar -zxvf"
+    "app": "tar",
+    "args": "-zxvf"
   },
   "tar_xz": {
     "type": "archive_b",
     "exts": ["tar.xz"],
-    "cmd": "tar --directory FOLDER_PATH -xJf ARCHIVE_PATH"
+    "app": "tar",
+    "args": "--directory FOLDER_PATH -xJf ARCHIVE_PATH"
   },
   "tar_bz2": {
     "type": "archive_a",
     "exts": ["tar.bz2"],
-    "cmd": "tar jxvf"
+    "app": "tar",
+    "args": "jxvf"
   },
   "text": {
     "type": "lonely",
-    "exts": ["text", "txt", "conf", "sh", "py", "note", "log", "c", "h", "js", "tmp", "json", "csv", "css", "java", "xml", "tex", "js"],
-    "cmd": "atom -a"
+    "exts": ["text", "txt", "conf", "sh", "note", "log", "c", "h", "js", "tmp", "json", "csv", "css", "java", "xml", "tex", "js"],
+    "app": "atom",
+    "args": "-a"
   },
   "tgz": {
     "type": "archive_a",
     "exts": ["tgz"],
-    "cmd": "tar -xvzf"
+    "app": "tar",
+    "args": "-xvzf"
   },
   "video": {
     "type": "playlist",
     "exts": ["avi", "mpeg", "mp4", "ogg", "quicktime", "webm", "mp2t", "flv", "mov", "mkv", "mts", "vob", "ogv", "drc", "gif", "gifv", "mng", "mts", "m2ts", "mwv", "yuv", "rm", "rmvb", "asf", "amv", "m4v", "mpg", "mpe", "mpv", "m2v", "svi", "3gp", "3g2", "mxf", "roq", "nsv", "f4v", "f4p", "f4a", "f4b"],
-    "cmd": "mpv -fs --loop-playlist --no-sub -script-opts=osc-hidetimeout=2000"
+    "app": "mpv",
+    "args": "--fs-screen=all -fs --loop-playlist --no-sub --script-opts=osc-hidetimeout=2000"
   },
   "web": {
     "type": "lonely",
     "exts": ["html"],
-    "cmd": "brave -a"
+    "app": "brave",
+    "args": "-a"
   },
   "zip": {
     "type": "archive_b",
     "exts": ["zip"],
-    "cmd": "unzip -d FOLDER_PATH ARCHIVE_PATH"
+    "app": "unzip",
+    "args": "-d FOLDER_PATH ARCHIVE_PATH"
   }
 }

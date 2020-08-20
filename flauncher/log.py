@@ -14,7 +14,7 @@ class Formatter(logging.Formatter):
                 logging.ERROR: RED + "\n\t[%(name)s]  " + BASE_C + "%(message)s" + GREY + "  %(filename)s:%(lineno)d",
                 logging.CRITICAL: PURPLE + "\n\t[%(name)s]  " + BASE_C + "%(message)s" + GREY + "  %(filename)s:%(lineno)d",
             }
-        else:
+        elif mode == "prod":
             self.FORMATS = {
                 logging.DEBUG: WHITE + "\n\t[%(levelname)s]  " + BASE_C + "%(message)s",
                 logging.INFO: GREEN + "\n\t[%(levelname)s]  " + BASE_C + "%(message)s",
@@ -30,7 +30,7 @@ class Formatter(logging.Formatter):
         return formatter.format(record)
 
 
-def gen(name, level=logging.DEBUG, mode="dev"):
+def gen(name="FLAUNCHER", level=logging.DEBUG, mode="prod"):
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
