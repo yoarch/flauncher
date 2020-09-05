@@ -7,11 +7,7 @@ import ntpath
 
 from .colors import *
 from . import log
-
-if __name__ == "__main__":
-    logger = log.gen(mode="dev")
-else:
-    logger = log.gen()
+logger = log.gen()
 
 __author__ = 'Yann Orieult'
 
@@ -176,8 +172,8 @@ def _create_archive_folder(archive_path, archive_ext, f_type):
     return folder_path
 
 
-def _print_cmd(cmd):
-    print(WHITE + "\n\t%s\n\n" % cmd + BASE_C, end='')
+# def _print_cmd(cmd):
+#     print(WHITE + "\n\t%s\n\n" % cmd + BASE_C, end='')
 
 
 def _find_available_path(base_path, folder_name, f_type):
@@ -328,10 +324,11 @@ def _get_cmds(conf, f_paths_by_exts):
         if conf[f_type]["type"] == "playlist" and len(f_paths) == 1:
             f_needs_su = _needs_su(f_paths[0])
             f_paths = _get_playlist_vs_ext(f_paths[0], conf, f_type, f_needs_su)
+
             if conf[f_type]["args"]:
-                cmd["args"] = conf[f_type]["args"] + ' ' + ' '.join(f_paths)
+                cmd["args"] = conf[f_type]["args"] + ' ' + ' '.join(_get_paths_str(f_paths))
             else:
-                cmd["args"] = ' '.join(f_paths)
+                cmd["args"] = ' '.join(_get_paths_str(f_paths))
             cmd["su"] = f_needs_su
             cmds.append(cmd)
 
@@ -346,25 +343,25 @@ def _get_cmds(conf, f_paths_by_exts):
 
             if f_paths_no_su:
                 if conf[f_type]["args"]:
-                    cmd["args"] = conf[f_type]["args"] + ' ' + ' '.join(f_paths_no_su)
+                    cmd["args"] = conf[f_type]["args"] + ' ' + ' '.join(_get_paths_str(f_paths_no_su))
                 else:
-                    cmd["args"] = ' '.join(f_paths_no_su)
+                    cmd["args"] = ' '.join(_get_paths_str(f_paths_no_su))
                 cmd["su"] = False
                 cmds.append(cmd)
             if f_paths_su:
                 if conf[f_type]["args"]:
-                    cmd["args"] = conf[f_type]["args"] + ' ' + ' '.join(f_paths_su)
+                    cmd["args"] = conf[f_type]["args"] + ' ' + ' '.join(_get_paths_str(f_paths_su))
                 else:
-                    cmd["args"] = ' '.join(f_paths_su)
+                    cmd["args"] = ' '.join(_get_paths_str(f_paths_su))
                 cmd["su"] = True
                 cmds.append(cmd)
 
         if conf[f_type]["type"] == "archive_a":
             for archive_path in f_paths:
                 if conf[f_type]["args"]:
-                    cmd["args"] = conf[f_type]["args"] + ' ' + archive_path
+                    cmd["args"] = conf[f_type]["args"] + ' ' + _add_quotes_path(archive_path)
                 else:
-                    cmd["args"] = archive_path
+                    cmd["args"] = _add_quotes_path(archive_path)
                 cmd["su"] = _needs_su(archive_path)
                 cmds.append(cmd)
 
@@ -375,26 +372,41 @@ def _get_cmds(conf, f_paths_by_exts):
                 continue
 
             for archive_path in f_paths:
-                folder_path = _create_archive_folder(archive_path, conf[f_type]["exts"][0], f_type)
+                folder_path = _create_archive_folder(_add_quotes_path(archive_path), conf[f_type]["exts"][0], f_type)
                 if not folder_path:
-                    logger.warning("Skipping the %s archive" % archive_path)
+                    logger.warning("Skipping the %s archive" % _add_quotes_path(archive_path))
                     continue
 
                 cmd_pattern = conf[f_type]["args"]
                 cmd_pattern = cmd_pattern.replace("FOLDER_PATH", folder_path)
-                cmd["args"] = cmd_pattern.replace("ARCHIVE_PATH", archive_path)
+                cmd["args"] = cmd_pattern.replace("ARCHIVE_PATH", _add_quotes_path(archive_path))
                 cmd["su"] = _needs_su(archive_path)
                 cmds.append(cmd)
     return cmds
 
 
+def _get_paths_str(paths):
+    paths_str = list()
+    for path in paths:
+        paths_str.append(_add_quotes_path(path))
+    return paths_str
+
+
+def _add_quotes_path(path):
+    if " " in path or "'" in path:
+        return "\"" + path + "\""
+    return path
+
+
 def run_cmds(cmds):
     for cmd in cmds:
         built_cmd = cmd["app"] + " " + cmd["args"]
+        display_cmd = ORANGE + cmd["app"] + BASE_C + " " + cmd["args"]
         if cmd["su"]:
             built_cmd = "sudo " + built_cmd
+            display_cmd = RED + "sudo " + display_cmd
 
-        _print_cmd(built_cmd)
+        logger.info(display_cmd)
         _run(built_cmd)
 
 

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="flauncher",
-    version="1.4.0",
+    version="1.4.1",
     python_requires='>=3',
     author="yoarch",
     author_email="yo.managements@gmail.com",
@@ -14,9 +14,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/yoarch/flauncher",
     packages=setuptools.find_packages(),
-    install_requires=[
-          'shutil', 'subprocess', 'ntpath'
-      ],
+    install_requires=[],
     data_files=[('/flauncher/conf', ['README.md', 'conf/open.json', 'conf/edit.json'])],
     classifiers=[
         "Programming Language :: Python :: 3",
