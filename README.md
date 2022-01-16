@@ -36,26 +36,79 @@ If this file doesn't exist, copy the default one located in *usr/lib/flauncher/o
 
 ```sh
 {
-  "audio": {
-    "type": "playlist",
-    "exts": ["mp3", "wav", "m4a", "aac", "mp1", "mp2", "flac", "aa", "aax", "act", "aiff", "amr", "ape", "au", "awb", "dct", "dss", "dvf", "gsm", "iklax", "ivs", "m4b", "m4p", "mmf", "mpc", "msv", "nmf", "nsf", "oga", "mogg", "opus", "ra", "raw", "sin", "tta", "vox", "wma", "wv", "8svx"],
-    "app": "mpv",
-    "args": "--fs-screen=all -fs --loop-playlist --script-opts=osc-hidetimeout=6000 --player-operation-mode=pseudo-gui"
-  },
-  "image_bitmap": {
-    "type": "playlist",
-    "exts": ["jpg", "jpeg", "png", "tif", "gif", "bmp", "pjpeg", "jfif", "exif", "tiff", "png", "ppm", "pgm", "pbm", "pnm", "webp", "hdr", "heif", "bat", "bpg"],
-    "app": "sxiv",
-    "args": "-bf"
-  },
-  "image_vectorial": {
-    "type": "lonely",
-    "exts": ["svg"],
-    "app": "inkscape",
-    "args": null
-  },
-  ...
-  ...
+        "files":
+        {
+                "audio": {
+                  "mode": "playlist",
+                  "exts": ["mp3", "wav", "m4a", "aac", "mp1", "mp2", "flac", "aa", "aax", "act", "aiff", "amr", "ape", "au", "awb", "dct", "dss", "dvf", "gsm", "iklax", "ivs", "m4b", "m4p", "mmf", "mpc", "msv", "nmf", "nsf", "oga", "mogg", "opus", "ra", "raw", "sin", "tta", "vox", "wma", "wv", "8svx"],
+                  "app": "mpv",
+                  "args": "--fs-screen=all -fs --loop-playplaylist --script-opts=osc-hidetimeout=6000 --player-operation-mode=pseudo-gui"
+                },
+                "graphical": {
+                  "mode": "individual",
+                  "exts": ["xcf"],
+                  "app": "gimp",
+                  "args": null
+                },
+                "image_bitmap": {
+                  "mode": "playlist",
+                  "exts": ["jpg", "jpeg", "png", "tif", "gif", "bmp", "pjpeg", "jfif", "exif", "tiff", "png", "ppm", "pgm", "pbm", "pnm", "webp", "hdr", "heif", "bat", "bpg"],
+                  "app": "sxiv",
+                  "args": "-bf"
+                },
+                "libreoffice_writer": {
+                  "mode": "individual",
+                  "exts": ["odt", "doc", "docx", "docs"],
+                  "app": "libreoffice --writer",
+                  "args": null
+                },
+                "markup": {
+                  "mode": "individual",
+                  "exts": ["ad", "md", "adoc"],
+                  "app": "brave",
+                  "args": "-a"
+                },
+                "python": {
+                  "mode": "individual",
+                  "exts": ["py"],
+                  "app": "pycharm",
+                  "args": null
+                },
+                "pdf": {
+                  "mode": "individual",
+                  "exts": ["pdf"],
+                  "app": "brave",
+                  "args": "-a"
+                },
+                "rar": {
+                  "mode": "archive_a",
+                  "exts": ["rar"],
+                  "app": "unrar",
+                  "args": "x"
+                },
+                "tar": {
+                  "mode": "archive_a",
+                  "exts": ["tar"],
+                  "app": "tar",
+                  "args": "-xvf"
+                },
+                "tar_gz": {
+                  "mode": "archive_a",
+                  "exts": ["tar.gz"],
+                  "app": "tar",
+                  "args": "-zxvf"
+                },
+                "tar_xz": {
+                  "mode": "archive_b",
+                  "exts": ["tar.xz", "txz"],
+                  "app": "tar",
+                  "args": "--directory FOLDER_PATH -xJf ARCHIVE_PATH"
+                }
+        ...
+        ...
+        ...
+        },
+        "folders": {}
 }
 ```
 
@@ -100,7 +153,7 @@ You can import the flauncher package in your own codes and then call the get_cmd
 
 ```
 from flauncher import get_cmds
-cmds = get_cmds(f_paths, mode)
+cmds = get_cmds(paths, mode)
 ```
 
-It will return a list of clean cmds, every cmd being a dictionary with the "app", the "args" and the "su" attributes.
+It will return a list of clean commands, every command being a dictionary with the "app", the "args" and the "su" attributes.
