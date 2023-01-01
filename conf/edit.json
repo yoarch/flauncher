@@ -1,101 +1,264 @@
 {
-	"files": {
-		"audio": {
+	"by_extension": {
+		"png": "image"
+	},
+	"by_detected_mime_type": {
+		"image": {
+			"default": "image",
+			"vectorial": "image_vectorial"
+		}
+	},
+	"app_mode": {
+		"image": {
 			"mode": "individual",
-			"exts": ["mp3", "wav", "m4a", "aac", "mp1", "mp2", "flac", "aa", "aax", "act", "aiff", "amr", "ape", "au", "awb", "dct", "dss", "dvf", "gsm", "iklax", "ivs", "m4b", "m4p", "mmf", "mpc", "msv", "nmf", "nsf", "oga", "mogg", "opus", "ra", "raw", "sin", "tta", "vox", "wma", "wv", "8svx"],
-			"app": "audacity",
-			"args": null
-		},
-		"draw_shapes": {
-			"mode": "individual",
-			"exts": ["epgz"],
-			"app": "pencil",
-			"args": null
-		},
-		"font": {
-			"mode": "individual",
-			"exts": ["sfd, ttf"],
-			"app": "fontforge",
-			"args": null
-		},
-		"graphical": {
-			"mode": "individual",
-			"exts": ["xcf"],
-			"app": "gimp",
-			"args": null
-		},
-		"image_bitmap": {
-			"mode": "individual",
-			"exts": ["jpg", "jpeg", "png", "tif", "gif", "bmp", "pjpeg", "jfif", "exif", "tiff", "png", "ppm", "pgm", "pbm", "pnm", "webp", "hdr", "heif", "bat", "bpg"],
 			"app": "gimp",
 			"args": null
 		},
 		"image_vectorial": {
 			"mode": "individual",
-			"exts": ["svg", "ai"],
 			"app": "inkscape",
+			"args": null
+		},
+		"audio": {
+			"mode": "individual",
+			"exts": [
+				"mp3",
+				"wav",
+				"m4a",
+				"aac",
+				"mp1",
+				"mp2",
+				"flac",
+				"aa",
+				"aax",
+				"act",
+				"aiff",
+				"amr",
+				"ape",
+				"au",
+				"awb",
+				"dct",
+				"dss",
+				"dvf",
+				"gsm",
+				"iklax",
+				"ivs",
+				"m4b",
+				"m4p",
+				"mmf",
+				"mpc",
+				"msv",
+				"nmf",
+				"nsf",
+				"oga",
+				"mogg",
+				"opus",
+				"ra",
+				"raw",
+				"sin",
+				"tta",
+				"vox",
+				"wma",
+				"wv",
+				"8svx"
+			],
+			"app": "audacity",
+			"args": null
+		},
+		"draw_shapes": {
+			"mode": "individual",
+			"exts": [
+				"epgz"
+			],
+			"app": "pencil",
+			"args": null
+		},
+		"font": {
+			"mode": "individual",
+			"exts": [
+				"sfd, ttf"
+			],
+			"app": "fontforge",
+			"args": null
+		},
+		"image_bitmap": {
+			"mode": "individual",
+			"exts": [
+				"jpg",
+				"jpeg",
+				"png",
+				"tif",
+				"gif",
+				"bmp",
+				"pjpeg",
+				"jfif",
+				"exif",
+				"tiff",
+				"png",
+				"ppm",
+				"pgm",
+				"pbm",
+				"pnm",
+				"webp",
+				"hdr",
+				"heif",
+				"bat",
+				"bpg"
+			],
+			"app": "gimp",
 			"args": null
 		},
 		"libreoffice_writer": {
 			"mode": "individual",
-			"exts": ["odt", "doc", "docx", "docs"],
+			"exts": [
+				"odt",
+				"doc",
+				"docx",
+				"docs"
+			],
 			"app": "libreoffice --writer",
 			"args": null
 		},
 		"libreoffice_calc": {
 			"mode": "individual",
-			"exts": ["ods", "calc", "xlsx", "et"],
+			"exts": [
+				"ods",
+				"calc",
+				"xlsx",
+				"et"
+			],
 			"app": "libreoffice --calc",
 			"args": null
 		},
 		"libreoffice_draw": {
 			"mode": "individual",
-			"exts": ["odg"],
+			"exts": [
+				"odg"
+			],
 			"app": "libreoffice --draw",
 			"args": null
 		},
 		"libreoffice_impress": {
 			"mode": "individual",
-			"exts": ["pptx", "ppt"],
+			"exts": [
+				"pptx",
+				"ppt"
+			],
 			"app": "libreoffice --impress",
 			"args": null
 		},
 		"markup": {
 			"mode": "individual",
-			"exts": ["md", "ad", "adoc"],
+			"exts": [
+				"md",
+				"ad",
+				"adoc"
+			],
 			"app": "atom",
 			"args": "-a"
 		},
 		"pdf": {
 			"mode": "individual",
-			"exts": ["pdf"],
+			"exts": [
+				"pdf"
+			],
 			"app": "inkscape",
 			"args": null
 		},
 		"python": {
 			"mode": "individual",
-			"exts": ["py"],
+			"exts": [
+				"py"
+			],
 			"app": "pycharm",
 			"args": null
 		},
 		"text": {
 			"mode": "individual",
-			"exts": ["text", "txt", "conf", "sh", "py", "note", "log", "c", "h", "js", "tmp", "json", "csv", "java", "xml", "tex", "js"],
+			"exts": [
+				"text",
+				"txt",
+				"conf",
+				"sh",
+				"py",
+				"note",
+				"log",
+				"c",
+				"h",
+				"js",
+				"tmp",
+				"json",
+				"csv",
+				"java",
+				"xml",
+				"tex",
+				"js"
+			],
 			"app": "atom",
 			"args": "-a"
 		},
 		"video": {
 			"mode": "individual",
-			"exts": ["avi", "mpeg", "mp4", "ogg", "quicktime", "webm", "mp2t", "flv", "mov", "mkv", "mts", "vob", "ogv", "drc", "gif", "gifv", "mng", "mts", "m2ts", "mwv", "yuv", "rm", "rmvb", "asf", "amv", "m4v", "mpg", "mpe", "mpv", "m2v", "svi", "3gp", "3g2", "mxf", "roq", "nsv", "f4v", "f4p", "f4a", "f4b"],
+			"exts": [
+				"avi",
+				"mpeg",
+				"mp4",
+				"ogg",
+				"quicktime",
+				"webm",
+				"mp2t",
+				"flv",
+				"mov",
+				"mkv",
+				"mts",
+				"vob",
+				"ogv",
+				"drc",
+				"gif",
+				"gifv",
+				"mng",
+				"mts",
+				"m2ts",
+				"mwv",
+				"yuv",
+				"rm",
+				"rmvb",
+				"asf",
+				"amv",
+				"m4v",
+				"mpg",
+				"mpe",
+				"mpv",
+				"m2v",
+				"svi",
+				"3gp",
+				"3g2",
+				"mxf",
+				"roq",
+				"nsv",
+				"f4v",
+				"f4p",
+				"f4a",
+				"f4b"
+			],
 			"app": "natron",
 			"args": null
 		},
 		"web": {
 			"mode": "individual",
-			"exts": ["html"],
+			"exts": [
+				"html"
+			],
+			"app": "atom",
+			"args": "-a"
+		},
+		"folder": {
+			"mode": "individual",
+			"exts": [
+				"html"
+			],
 			"app": "atom",
 			"args": "-a"
 		}
-        },
-		"folders": {}
+	}
 }

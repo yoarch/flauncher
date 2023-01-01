@@ -5,22 +5,22 @@ import os
 import subprocess
 import ntpath
 from natsort import natsorted
-
 from .colors import *
 from . import log
+
 logger = log.gen()
 
-__author__ = 'Yann Orieult'
+__author__ = "Yann Orieult"
 
 
-FLAUNCHER_DIR_CONF = os.environ['HOME'] + "/.config/flauncher/"
+CONF_PATH = os.environ["HOME"] + "/.config/flauncher/"
 
 
 def _man_inputs(inputs):
     _help_requested(inputs)
 
     inputs, mode = _man_special_arg(inputs)
-    conf_path = FLAUNCHER_DIR_CONF + mode + ".json"
+    conf_path = CONF_PATH + mode + ".json"
 
     _man_conf_paths(conf_path, mode)
 
@@ -38,17 +38,33 @@ def _help_requested(inputs):
         if not os.path.isfile(readme_path):
             readme_path = os.path.dirname(__file__) + "/conf/README.md"
 
-        f = open(readme_path, 'r')
+        f = open(readme_path, "r")
         print(BLUE + "\n\t#######      flauncher documentation      #######\n" + WHITE)
 
         for line in f:
-            if line == "```sh\n" or line == "```\n" or line == "<pre>\n" or line == "</pre>\n":
+            if (
+                line == "```sh\n"
+                or line == "```\n"
+                or line == "<pre>\n"
+                or line == "</pre>\n"
+            ):
                 continue
-            line = line.replace('```sh', '').replace('```', '').replace('<pre>', '').replace('</b>', ''). \
-                replace('<b>', '').replace('<!-- -->', '').replace('<br/>', '').replace('```sh', ''). \
-                replace('***', '').replace('***', '').replace('**', '').replace('*', '')
+            line = (
+                line.replace("```sh", "")
+                .replace("```", "")
+                .replace("<pre>", "")
+                .replace("</b>", "")
+                .replace("<b>", "")
+                .replace("<!-- -->", "")
+                .replace("<br/>", "")
+                .replace("```sh", "")
+                .replace("***", "")
+                .replace("***", "")
+                .replace("**", "")
+                .replace("*", "")
+            )
 
-            print(" " + line, end='')
+            print(" " + line, end="")
         print(BASE_C)
         exit(0)
 
@@ -59,11 +75,17 @@ def _man_special_arg(inputs):
     if "-m" in inputs:
         m_index = inputs.index("-m")
         if len(inputs) < m_index + 1:
-            logger.error("Must enter the wanted mode after the " + WHITE + "-m" + BASE_C + " option\n\t" +
-                         "such as \"open\" or \"edit\"")
+            logger.error(
+                "Must enter the wanted mode after the "
+                + WHITE
+                + "-m"
+                + BASE_C
+                + " option\n\t"
+                + 'such as "open" or "edit"'
+            )
             exit(1)
         mode = inputs[m_index + 1]
-        del inputs[m_index: m_index + 2]
+        del inputs[m_index : m_index + 2]
 
     if "-f" in inputs:
         inputs.remove("-f")
@@ -74,10 +96,14 @@ def _man_special_arg(inputs):
 def _man_conf_paths(input_conf_path, mode):
     if not os.path.exists(input_conf_path):
 
-        if os.path.exists(FLAUNCHER_DIR_CONF + "open.json"):
-            logger.error(WHITE + "%s" % input_conf_path + BASE_C + "conf path doesn't exist\n\t"
-                         "Please create your own conf file from one of the existent in " +
-                         WHITE + "%s" % FLAUNCHER_DIR_CONF + BASE_C)
+        if os.path.exists(CONF_PATH + "open.json"):
+            logger.error(
+                WHITE + "%s" % input_conf_path + BASE_C + "conf path doesn't exist\n\t"
+                "Please create your own conf file from one of the existent in "
+                + WHITE
+                + "%s" % CONF_PATH
+                + BASE_C
+            )
         else:
             conf_path = None
             if os.path.isfile("/usr/lib/flauncher/open.json"):
@@ -86,26 +112,37 @@ def _man_conf_paths(input_conf_path, mode):
                 conf_path = os.path.dirname(__file__) + "/conf/"
 
             if conf_path:
-                if not os.path.isdir(FLAUNCHER_DIR_CONF):
-                    os.mkdir(FLAUNCHER_DIR_CONF)
+                if not os.path.isdir(CONF_PATH):
+                    os.mkdir(CONF_PATH)
                 for file in os.listdir(conf_path):
                     file_path = conf_path + file
                     if file_path.endswith(".json"):
-                        copyfile(file_path, FLAUNCHER_DIR_CONF + file)
+                        copyfile(file_path, CONF_PATH + file)
                 if mode not in ["open", "edit"]:
-                    copyfile(input_conf_path, FLAUNCHER_DIR_CONF + mode + ".json")
+                    copyfile(input_conf_path, CONF_PATH + mode + ".json")
 
             else:
-                logger.error("Can not find the conf file " + WHITE + "%s" % input_conf_path + BASE_C + " under " +
-                             WHITE + "%s" % FLAUNCHER_DIR_CONF + BASE_C +
-                             "\nPlease find the conf files in the python archive under \"conf\" and add it under " +
-                             WHITE + "%s" % FLAUNCHER_DIR_CONF)
+                logger.error(
+                    "Can not find the conf file "
+                    + WHITE
+                    + "%s" % input_conf_path
+                    + BASE_C
+                    + " under "
+                    + WHITE
+                    + "%s" % CONF_PATH
+                    + BASE_C
+                    + '\nPlease find the conf files in the python archive under "conf" and add it under '
+                    + WHITE
+                    + "%s" % CONF_PATH
+                )
 
                 exit(1)
 
 
 def _run(command):
-    return subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).stdout.readlines()
+    return subprocess.Popen(
+        command, shell=True, stdout=subprocess.PIPE
+    ).stdout.readlines()
 
 
 def _needs_su(f_path, write=True, read=True, execute=False):
@@ -125,16 +162,26 @@ def _skipped():
 def _get_abs_path(file_paths):
     abs_f_paths = list()
     for file in file_paths:
-        abs_f_paths.append(os.path.normpath((os.path.join(os.getcwd(), os.path.expanduser(file)))))
+        abs_f_paths.append(
+            os.path.normpath((os.path.join(os.getcwd(), os.path.expanduser(file))))
+        )
     return abs_f_paths
 
 
 def _is_path_issue(file_path):
     if not os.path.exists(file_path):
-        logger.warning("the path " + BLUE + "%s" % file_path + BASE_C + " doesn't exist")
+        logger.warning(
+            "the path " + BLUE + "%s" % file_path + BASE_C + " doesn't exist"
+        )
         return True
     elif os.path.isdir(file_path):
-        logger.warning("the path " + BLUE + "%s" % file_path + BASE_C + " is a directory, not a file")
+        logger.warning(
+            "the path "
+            + BLUE
+            + "%s" % file_path
+            + BASE_C
+            + " is a directory, not a file"
+        )
         return True
     else:
         return False
@@ -142,10 +189,10 @@ def _is_path_issue(file_path):
 
 def _is_binary(file_path):
     binary = False
-    text_chars = bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(0x20, 0x100)) - {0x7f})
+    text_chars = bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(0x20, 0x100)) - {0x7F})
     is_binary_str = lambda bytes: bool(bytes.translate(None, text_chars))
     try:
-        if is_binary_str(open(file_path, 'rb').read(1024)):
+        if is_binary_str(open(file_path, "rb").read(1024)):
             binary = True
     finally:
         pass
@@ -156,7 +203,7 @@ def _create_archive_folder(archive_path, archive_ext, f_type):
     base_path = os.path.dirname(archive_path)
     f_name = os.path.basename(archive_path)
 
-    folder_name = f_name[:-(len(archive_ext) + 1)]
+    folder_name = f_name[: -(len(archive_ext) + 1)]
 
     folder_path = base_path + "/" + folder_name
 
@@ -166,7 +213,13 @@ def _create_archive_folder(archive_path, archive_ext, f_type):
     try:
         os.mkdir(folder_path)
     except OSError:
-        logger.error("creation of the directory " + BLUE + "%s" + BASE_C + " failed" % folder_path)
+        logger.error(
+            "creation of the directory "
+            + BLUE
+            + "%s"
+            + BASE_C
+            + " failed" % folder_path
+        )
         folder_path = None
 
     return folder_path
@@ -239,40 +292,38 @@ def sort_paths_by_exts(paths):
     files_exts_set = set()
 
     for file_path in files_paths:
-        files_exts_set.add(os.path.splitext(file_path)[1].replace('.', ''))
+        files_exts_set.add(os.path.splitext(file_path)[1].replace(".", ""))
 
     for file_ext in files_exts_set:
         files_by_exts[file_ext] = list()
 
     for file_path in files_paths:
-        files_by_exts[os.path.splitext(file_path)[1].replace('.', '')].append(file_path)
+        files_by_exts[os.path.splitext(file_path)[1].replace(".", "")].append(file_path)
 
-    if '' in files_by_exts:
-        no_binary_text_files = files_by_exts[''].copy()
-        for text_file_path in files_by_exts['']:
+    if "" in files_by_exts:
+        no_binary_text_files = files_by_exts[""].copy()
+        for text_file_path in files_by_exts[""]:
             if _is_binary(text_file_path):
                 logger.warning(f"File {BLUE}{text_file_path}{BASE_C} is binary")
                 no_binary_text_files.remove(text_file_path)
 
-        files_by_exts[''] = no_binary_text_files
-
+        files_by_exts[""] = no_binary_text_files
 
     folders_by_exts = dict()
     folders_exts_set = set()
 
     for folder_path in folders_paths:
-        folders_exts_set.add(os.path.splitext(folder_path)[1].replace('.', ''))
+        folders_exts_set.add(os.path.splitext(folder_path)[1].replace(".", ""))
 
     for folder_ext in folders_exts_set:
         folders_by_exts[folder_ext] = list()
 
     for folder_path in folders_paths:
-        folders_by_exts[os.path.splitext(folder_path)[1].replace('.', '')].append(folder_path)
+        folders_by_exts[os.path.splitext(folder_path)[1].replace(".", "")].append(
+            folder_path
+        )
 
-    return {
-        "files": files_by_exts,
-        "folders": folders_by_exts
-    }
+    return {"files": files_by_exts, "folders": folders_by_exts}
 
 
 def _get_all_having_same_type_in_folder(f_path, exts, f_needs_su):
@@ -292,7 +343,9 @@ def _get_all_having_same_type_in_folder(f_path, exts, f_needs_su):
     f_with_same_type = natsorted(f_with_same_type, key=lambda y: y.lower())
 
     index_targeted_f = f_with_same_type.index(entered_f_name)
-    f_names_same_ext_sorted = f_with_same_type[index_targeted_f:] + f_with_same_type[:index_targeted_f]
+    f_names_same_ext_sorted = (
+        f_with_same_type[index_targeted_f:] + f_with_same_type[:index_targeted_f]
+    )
 
     return [folder_path + "/" + f_name for f_name in f_names_same_ext_sorted]
 
@@ -307,62 +360,84 @@ def _build_dict_cmds(paths_to_launch):
 
             if params["mode"] == "playlist" and len(params["paths"]) == 1:
 
-                f_with_same_type_in_folder = _get_all_having_same_type_in_folder(params["paths"][0],
-                                                                                 params["exts"],
-                                                                                 _needs_su(params["paths"][0]))
+                f_with_same_type_in_folder = _get_all_having_same_type_in_folder(
+                    params["paths"][0], params["exts"], _needs_su(params["paths"][0])
+                )
 
-                args = params["args"] + ' ' + ' '.join(f_with_same_type_in_folder) if params["args"]\
-                    else ' '.join(f_with_same_type_in_folder)
+                args = (
+                    params["args"] + " " + " ".join(f_with_same_type_in_folder)
+                    if params["args"]
+                    else " ".join(f_with_same_type_in_folder)
+                )
 
                 cmds.append(
                     {
                         "app": params["app"],
                         "args": args,
-                        "su": _needs_su(params["paths"][0])
+                        "su": _needs_su(params["paths"][0]),
                     }
                 )
 
             elif params["mode"] in ["playlist", "individual"]:
 
-                args = params["args"] + ' ' + ' '.join(_get_paths_str(natsorted(params["paths"],
-                                                                                key=lambda y: y.lower())))\
-                    if params["args"] else\
-                    ' '.join(_get_paths_str(natsorted(params["paths"], key=lambda y: y.lower())))
+                args = (
+                    params["args"]
+                    + " "
+                    + " ".join(
+                        _get_paths_str(
+                            natsorted(params["paths"], key=lambda y: y.lower())
+                        )
+                    )
+                    if params["args"]
+                    else " ".join(
+                        _get_paths_str(
+                            natsorted(params["paths"], key=lambda y: y.lower())
+                        )
+                    )
+                )
 
                 cmds.append(
                     {
                         "app": params["app"],
                         "args": args,
-                        "su": _needs_su(params["paths"][0])
+                        "su": _needs_su(params["paths"][0]),
                     }
                 )
 
             elif params["mode"] == "archive_a":
                 for archive_path in params["paths"]:
-                    args = params["args"] + ' ' + _add_quotes_path(archive_path) if params["args"]\
+                    args = (
+                        params["args"] + " " + _add_quotes_path(archive_path)
+                        if params["args"]
                         else _add_quotes_path(archive_path)
+                    )
 
                     cmds.append(
                         {
                             "app": params["app"],
                             "args": args,
-                            "su": _needs_su(archive_path)
+                            "su": _needs_su(archive_path),
                         }
                     )
 
             if params["mode"] == "archive_b":
 
                 for archive_path in params["paths"]:
-                    folder_path = _create_archive_folder(_add_quotes_path(archive_path), params["exts"][0],
-                                                         params["mode"])
+                    folder_path = _create_archive_folder(
+                        _add_quotes_path(archive_path),
+                        params["exts"][0],
+                        params["mode"],
+                    )
                     cmd_pattern = params["args"]
                     cmd_pattern = cmd_pattern.replace("FOLDER_PATH", folder_path)
 
                     cmds.append(
                         {
                             "app": params["app"],
-                            "args": cmd_pattern.replace("ARCHIVE_PATH", _add_quotes_path(archive_path)),
-                            "su": _needs_su(archive_path)
+                            "args": cmd_pattern.replace(
+                                "ARCHIVE_PATH", _add_quotes_path(archive_path)
+                            ),
+                            "su": _needs_su(archive_path),
                         }
                     )
     logger.debug(f"Built commands: {cmds}")
@@ -378,7 +453,7 @@ def _get_paths_str(paths):
 
 def _add_quotes_path(path):
     if " " in path or "'" in path:
-        return "\"" + path + "\""
+        return '"' + path + '"'
     return path
 
 
@@ -420,15 +495,12 @@ def _paths_to_launch_by_type(sorted_paths_by_exts, conf):
 
     logger.debug(f"Folders to launch: {folders_to_launch}")
 
-    return {
-        "files": files_to_launch,
-        "folders": folders_to_launch
-    }
+    return {"files": files_to_launch, "folders": folders_to_launch}
 
 
 def get_cmds(paths, mode):
 
-    conf_path = f"{FLAUNCHER_DIR_CONF}{mode}.json"
+    conf_path = f"{CONF_PATH}{mode}.json"
     _man_conf_paths(conf_path, mode)
 
     json_conf_file = open(conf_path)
